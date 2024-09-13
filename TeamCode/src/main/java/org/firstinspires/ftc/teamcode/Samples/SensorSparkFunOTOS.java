@@ -5,6 +5,11 @@
 */
 package org.firstinspires.ftc.teamcode.Samples;
 
+import com.acmerobotics.dashboard.FtcDashboard;
+import com.acmerobotics.dashboard.telemetry.TelemetryPacket;
+import com.acmerobotics.roadrunner.Pose2d;
+import com.acmerobotics.roadrunner.PoseVelocity2d;
+import com.acmerobotics.roadrunner.Vector2d;
 import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
@@ -13,6 +18,9 @@ import com.qualcomm.hardware.sparkfun.SparkFunOTOS;
 
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
+import org.firstinspires.ftc.teamcode.Drawing;
+import org.firstinspires.ftc.teamcode.MecanumDrive;
+import org.firstinspires.ftc.teamcode.tuning.TuningOpModes;
 
 /*
  * This OpMode illustrates how to use the SparkFun Qwiic Optical Tracking Odometry Sensor (OTOS)
@@ -34,6 +42,10 @@ public class SensorSparkFunOTOS extends LinearOpMode {
     public void runOpMode() throws InterruptedException {
         // Get a reference to the sensor
         myOtos = hardwareMap.get(SparkFunOTOS.class, "sensor_otos");
+
+        MecanumDrive drive = new MecanumDrive(hardwareMap, new Pose2d(0, 0, 0));
+
+
 
         // All the configuration for the OTOS is done in this helper method, check it out!
         configureOtos();
@@ -57,6 +69,21 @@ public class SensorSparkFunOTOS extends LinearOpMode {
                 myOtos.calibrateImu();
             }
 
+            drive.setDrivePowers(new PoseVelocity2d(
+                    new Vector2d(
+                            -gamepad1.left_stick_y,
+                            -gamepad1.left_stick_x
+                    ),
+                    -gamepad1.right_stick_x
+            ));
+
+            
+
+            TelemetryPacket packet = new TelemetryPacket();
+            packet.fieldOverlay().setStroke("#3F51B5");
+            Drawing.drawRobot(packet.fieldOverlay(), new Pose2d(pos.y, pos.x, Math.toRadians(pos.h)));
+            FtcDashboard.getInstance().sendTelemetryPacket(packet);
+
             // Inform user of available controls
             telemetry.addLine("Press Y (triangle) on Gamepad to reset tracking");
             telemetry.addLine("Press X (square) on Gamepad to calibrate the IMU");
@@ -70,6 +97,7 @@ public class SensorSparkFunOTOS extends LinearOpMode {
             // Update the telemetry on the driver station
             telemetry.update();
         }
+
     }
 
     private void configureOtos() {
