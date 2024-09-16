@@ -112,10 +112,10 @@ public class SensorLimelight3A extends LinearOpMode {
                 
                 if (result.isValid()) {
                     telemetry.addData("tx", result.getTx());
-                    telemetry.addData("txnc", result.getTxNC());
+                    //telemetry.addData("txnc", result.getTxNC());
                     telemetry.addData("ty", result.getTy());
-                    telemetry.addData("tync", result.getTyNC());
-                    telemetry.addData("colorResults", result.getColorResults());
+                    //telemetry.addData("tync", result.getTyNC());
+                    //telemetry.addData("colorResults", result.getColorResults());
                     telemetry.addData("ta", result.getTa());
 
                     telemetry.addData("Botpose", botpose.toString());
