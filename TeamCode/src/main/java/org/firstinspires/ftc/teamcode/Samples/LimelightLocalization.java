@@ -33,6 +33,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 package org.firstinspires.ftc.teamcode.Samples;
 
 import com.acmerobotics.dashboard.FtcDashboard;
+import com.acmerobotics.dashboard.config.Config;
 import com.acmerobotics.dashboard.telemetry.TelemetryPacket;
 import com.acmerobotics.roadrunner.Pose2d;
 import com.acmerobotics.roadrunner.PoseVelocity2d;
@@ -41,12 +42,13 @@ import com.qualcomm.hardware.limelightvision.LLResult;
 import com.qualcomm.hardware.limelightvision.LLResultTypes;
 import com.qualcomm.hardware.limelightvision.LLStatus;
 import com.qualcomm.hardware.limelightvision.Limelight3A;
-import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
+import com.qualcomm.robotcore.hardware.IMU;
 
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.Pose3D;
+import org.firstinspires.ftc.robotcore.external.navigation.YawPitchRollAngles;
 import org.firstinspires.ftc.teamcode.Drawing;
 import org.firstinspires.ftc.teamcode.MecanumDrive;
 
@@ -74,22 +76,25 @@ import java.util.List;
  *   and the ip address the Limelight device assigned the Control Hub and which is displayed in small text
  *   below the name of the Limelight on the top level configuration screen.
  */
-@TeleOp(name = "Sensor: Limelight3A", group = "Sensor")
-
-public class SensorLimelight3A extends LinearOpMode {
+@TeleOp(name = "LimeLight Localization", group = "Sensor")
+@Config
+public class LimelightLocalization extends LinearOpMode {
 
     private Limelight3A limelight;
+    MecanumDrive drive;
+    IMU imu;
 
     @Override
     public void runOpMode() throws InterruptedException
     {
-        MecanumDrive drive = new MecanumDrive(hardwareMap, new Pose2d(0, 0, 0));
+        drive = new MecanumDrive(hardwareMap, new Pose2d(0, 0, 0));
+        imu = hardwareMap.get(IMU.class, "imu");
 
         limelight = hardwareMap.get(Limelight3A.class, "limelight");
 
         telemetry.setMsTransmissionInterval(11);
 
-        limelight.pipelineSwitch(0);
+        limelight.pipelineSwitch(1);
 
         /*
          * Starts polling for data.  If you neglect to call start(), getLatestResult() will return null.
@@ -101,6 +106,13 @@ public class SensorLimelight3A extends LinearOpMode {
         waitForStart();
 
         while (opModeIsActive()) {
+            //update IMU
+            YawPitchRollAngles orientation = imu.getRobotYawPitchRollAngles();
+
+            telemetry.addData("Yaw (Z)", "%.2f Deg. (Heading)", orientation.getYaw(AngleUnit.DEGREES));
+
+            limelight.updateRobotOrientation(orientation.getYaw(AngleUnit.DEGREES));
+
             //set drivetrain power
             drive.setDrivePowers(new PoseVelocity2d(
                     new Vector2d(
@@ -118,49 +130,32 @@ public class SensorLimelight3A extends LinearOpMode {
             telemetry.addData("Pipeline", "Index: %d, Type: %s",
                     status.getPipelineIndex(), status.getPipelineType());
 
+            limelight.updateRobotOrientation(orientation.getYaw(AngleUnit.DEGREES));
             LLResult result = limelight.getLatestResult();
             if (result != null) {
                 // Access general information
-                Pose3D botpose = result.getBotpose();
+                Pose3D botpose = result.getBotpose_MT2();
                 double captureLatency = result.getCaptureLatency();
                 double targetingLatency = result.getTargetingLatency();
                 double parseLatency = result.getParseLatency();
 
+                double xIn = botpose.getPosition().x*39.37;
+                double yIn = botpose.getPosition().y*39.37;
+                telemetry.addData("x Inches: ", xIn);
+                telemetry.addData("y Inches: ", yIn);
+                telemetry.addData("angle", botpose.getOrientation().getYaw(AngleUnit.DEGREES));
+
                 TelemetryPacket packet = new TelemetryPacket();
                 packet.fieldOverlay().setStroke("#3F51B5");
-                Drawing.drawRobot(packet.fieldOverlay(), new Pose2d(botpose.getPosition().x, botpose.getPosition().y, botpose.getOrientation().getYaw(AngleUnit.RADIANS)));
+                Drawing.drawRobot(packet.fieldOverlay(), new Pose2d(xIn, yIn, botpose.getOrientation().getYaw(AngleUnit.RADIANS)));
                 FtcDashboard.getInstance().sendTelemetryPacket(packet);
                 //telemetry.addData("LL Latency", captureLatency + targetingLatency);
                 //telemetry.addData("Parse Latency", parseLatency);
                 //telemetry.addData("PythonOutput", java.util.Arrays.toString(result.getPythonOutput()));
                 
                 if (result.isValid()) {
-                    telemetry.addData("tx", result.getTx());
-                    //telemetry.addData("txnc", result.getTxNC());
-                    telemetry.addData("ty", result.getTy());
-                    //telemetry.addData("tync", result.getTyNC());
-                    //telemetry.addData("colorResults", result.getColorResults());
-                    telemetry.addData("ta", result.getTa());
 
                     telemetry.addData("Botpose", botpose.toString());
-
-                    // Access barcode results
-                    List<LLResultTypes.BarcodeResult> barcodeResults = result.getBarcodeResults();
-                    for (LLResultTypes.BarcodeResult br : barcodeResults) {
-                        telemetry.addData("Barcode", "Data: %s", br.getData());
-                    }
-
-                    // Access classifier results
-                    List<LLResultTypes.ClassifierResult> classifierResults = result.getClassifierResults();
-                    for (LLResultTypes.ClassifierResult cr : classifierResults) {
-                        telemetry.addData("Classifier", "Class: %s, Confidence: %.2f", cr.getClassName(), cr.getConfidence());
-                    }
-
-                    // Access detector results
-                    List<LLResultTypes.DetectorResult> detectorResults = result.getDetectorResults();
-                    for (LLResultTypes.DetectorResult dr : detectorResults) {
-                        telemetry.addData("Detector", "Class: %s, Area: %.2f", dr.getClassName(), dr.getTargetArea());
-                    }
 
                     // Access fiducial results
                     List<LLResultTypes.FiducialResult> fiducialResults = result.getFiducialResults();
@@ -168,11 +163,6 @@ public class SensorLimelight3A extends LinearOpMode {
                         telemetry.addData("Fiducial", "ID: %d, Family: %s, X: %.2f, Y: %.2f", fr.getFiducialId(), fr.getFamily(),fr.getTargetXDegrees(), fr.getTargetYDegrees());
                     }
 
-                    // Access color results
-                    List<LLResultTypes.ColorResult> colorResults = result.getColorResults();
-                    for (LLResultTypes.ColorResult cr : colorResults) {
-                        telemetry.addData("Color", "X: %.2f, Y: %.2f", cr.getTargetXDegrees(), cr.getTargetYDegrees());
-                    }
                 }
             } else {
                 telemetry.addData("Limelight", "No data available");

@@ -81,7 +81,7 @@ public class SensorSparkFunOTOS extends LinearOpMode {
 
             TelemetryPacket packet = new TelemetryPacket();
             packet.fieldOverlay().setStroke("#3F51B5");
-            Drawing.drawRobot(packet.fieldOverlay(), new Pose2d(pos.y, pos.x, Math.toRadians(pos.h)));
+            Drawing.drawRobot(packet.fieldOverlay(), new Pose2d(pos.x, pos.y, Math.toRadians(pos.h)));
             FtcDashboard.getInstance().sendTelemetryPacket(packet);
 
             // Inform user of available controls
