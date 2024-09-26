@@ -24,6 +24,7 @@ package org.firstinspires.ftc.teamcode;
 
 import static com.qualcomm.robotcore.util.TypeConversion.byteArrayToInt;
 
+import com.acmerobotics.roadrunner.Pose2d;
 import com.qualcomm.robotcore.hardware.I2cAddr;
 import com.qualcomm.robotcore.hardware.I2cDeviceSynch;
 import com.qualcomm.robotcore.hardware.I2cDeviceSynchDevice;
@@ -31,8 +32,13 @@ import com.qualcomm.robotcore.hardware.configuration.annotations.DevicePropertie
 import com.qualcomm.robotcore.hardware.configuration.annotations.I2cDeviceType;
 import com.qualcomm.robotcore.util.TypeConversion;
 
+import com.acmerobotics.dashboard.FtcDashboard;
+import com.acmerobotics.dashboard.canvas.Canvas;
+import com.acmerobotics.dashboard.telemetry.TelemetryPacket;
+
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
+
 
 
 import java.nio.ByteBuffer;
@@ -167,6 +173,24 @@ public class GoBildaPinpointDriver extends I2cDeviceSynchDevice<I2cDeviceSynch> 
     private float readFloat(Register reg){
         return byteArrayToFloat(deviceClient.read(reg.bVal,4),ByteOrder.LITTLE_ENDIAN);
     }
+
+    void drawRobot (Canvas canvas){
+        canvas.setStroke("green");
+        canvas.strokeCircle(xPosition/25.4, yPosition/25.4, 8);
+        double x2 = 8 * Math.cos(hOrientation) + xPosition/25.4;
+        double y2 = 8 * Math.sin(hOrientation) + yPosition/25.4;
+        canvas.strokeLine(xPosition/25.4, yPosition/25.4, x2, y2);
+    }
+
+
+    void updateDashboard(){
+        TelemetryPacket packet = new TelemetryPacket();
+        FtcDashboard dashboard = FtcDashboard.getInstance();
+
+        drawRobot(packet.fieldOverlay());
+        dashboard.sendTelemetryPacket(packet);
+    }
+
 
 
     /**
