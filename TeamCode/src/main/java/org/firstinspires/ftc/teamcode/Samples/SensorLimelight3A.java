@@ -122,14 +122,7 @@ public class SensorLimelight3A extends LinearOpMode {
             if (result != null) {
                 // Access general information
                 Pose3D botpose = result.getBotpose();
-                double captureLatency = result.getCaptureLatency();
-                double targetingLatency = result.getTargetingLatency();
-                double parseLatency = result.getParseLatency();
 
-                TelemetryPacket packet = new TelemetryPacket();
-                packet.fieldOverlay().setStroke("#3F51B5");
-                Drawing.drawRobot(packet.fieldOverlay(), new Pose2d(botpose.getPosition().x, botpose.getPosition().y, botpose.getOrientation().getYaw(AngleUnit.RADIANS)));
-                FtcDashboard.getInstance().sendTelemetryPacket(packet);
                 //telemetry.addData("LL Latency", captureLatency + targetingLatency);
                 //telemetry.addData("Parse Latency", parseLatency);
                 //telemetry.addData("PythonOutput", java.util.Arrays.toString(result.getPythonOutput()));
