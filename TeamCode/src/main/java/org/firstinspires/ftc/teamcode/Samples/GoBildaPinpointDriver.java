@@ -20,11 +20,10 @@
  *   SOFTWARE.
  */
 
-package org.firstinspires.ftc.teamcode;
+package org.firstinspires.ftc.teamcode.Samples;
 
 import static com.qualcomm.robotcore.util.TypeConversion.byteArrayToInt;
 
-import com.acmerobotics.roadrunner.Pose2d;
 import com.qualcomm.robotcore.hardware.I2cAddr;
 import com.qualcomm.robotcore.hardware.I2cDeviceSynch;
 import com.qualcomm.robotcore.hardware.I2cDeviceSynchDevice;
@@ -38,7 +37,7 @@ import com.acmerobotics.dashboard.telemetry.TelemetryPacket;
 
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
-
+import org.firstinspires.ftc.teamcode.Pose2D;
 
 
 import java.nio.ByteBuffer;

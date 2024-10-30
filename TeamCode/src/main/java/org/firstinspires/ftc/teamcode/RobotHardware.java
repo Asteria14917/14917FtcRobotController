@@ -3,7 +3,11 @@ package org.firstinspires.ftc.teamcode;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
-    public class RobotHardware{
+import org.firstinspires.ftc.teamcode.Subsystems.Drivetrain;
+import org.firstinspires.ftc.teamcode.Subsystems.Lift;
+import org.firstinspires.ftc.teamcode.Subsystems.Scoring;
+
+public class RobotHardware{
         /* Declare OpMode members. */
         private LinearOpMode myOpMode = null;   // gain access to methods in the calling OpMode.
 

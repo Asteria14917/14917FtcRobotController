@@ -1,4 +1,4 @@
-package org.firstinspires.ftc.teamcode;
+package org.firstinspires.ftc.teamcode.Subsystems;
 
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.Servo;
@@ -33,7 +33,7 @@ import com.qualcomm.robotcore.hardware.Servo;
         public void init() {
             claw = myOpMode.hardwareMap.get(Servo.class, "claw");
            // extension = myOpMode.hardwareMap.get(Servo.class, "extension");
-            pivot = myOpMode.hardwareMap.get(Servo.class, "pivot");
+            clawPivot = myOpMode.hardwareMap.get(Servo.class, "pivot");
 
             claw.setPosition(CLAW_CLOSED);
             //extension.setPosition(EXTENSION_IN);
