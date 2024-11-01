@@ -15,17 +15,17 @@ public class Lift {
     //public TouchSensor touch = null;
 
     //lift constants
-    public static final double LIFT_KP = 0.01;
-    public static final double LIFT_KI = 0;
-    public static final double LIFT_KD = 0;
+    public static final int EXT_HIGH_BASKET= 1;
+    public static final int EXT_RETRACTED = 0;
+    public static final int EXT_HIGH_CHAMBER = 0;
 
     //if the subsystem has explicit states, it can be helpful to use an enum to define them
     public enum LiftMode {
         MANUAL,
-        EXT_LOW_BASKET,
-        EXT_HIGH_BASKET,
-        EXT_HIGH_CHAMBER,
-        EXT_LOW_CHAMBER,
+        LOW_BASKET,
+        HIGH_BASKET,
+        HIGH_CHAMBER,
+        LOW_CHAMBER,
         RETRACTED
     }
 
@@ -66,25 +66,21 @@ public class Lift {
                 leftLift.setPower(0.7);
                 rightLift.setPower(0.7);
             }
-        } else if (liftMode == LiftMode.EXT_LOW_BASKET) {
-            //liftToPositionPIDClass(300);
-        } else if (liftMode == LiftMode.EXT_HIGH_BASKET) {
-           // liftToPositionPIDClass(700);
-        }else if(liftMode == LiftMode.EXT_LOW_CHAMBER){
-
-        }else if(liftMode == LiftMode.EXT_HIGH_CHAMBER) {
+        } else if (liftMode == LiftMode.HIGH_BASKET) {
+           liftToTargetPosition(0, EXT_HIGH_BASKET);
+        }else if(liftMode == LiftMode.HIGH_CHAMBER) {
+            liftToTargetPosition(0, EXT_HIGH_CHAMBER);
         }else if(liftMode == LiftMode.RETRACTED){
+            liftToTargetPosition(0, EXT_RETRACTED);
 
         }
     }
 
-    public void encoderDrive(double speed,
-                             double targetPosition,
-                             double timeoutS) {
-        int targetPosition;
+    public void liftToTargetPosition(double speed,
+                             int targetPosition) {
 
         // Ensure that the OpMode is still active
-        if (opModeIsActive()) {
+        if (myOpMode.opModeIsActive()) {
 
             // Determine new target position, and pass to motor controller
             rightLift.setTargetPosition(targetPosition);
@@ -93,8 +89,7 @@ public class Lift {
             rightLift.setMode(DcMotor.RunMode.RUN_TO_POSITION);
             leftLift.setMode(DcMotor.RunMode.RUN_TO_POSITION);
 
-            // reset the timeout time and start motion.
-            runtime.reset();
+            // reset the timeout time and start
             leftLift.setPower(Math.abs(speed));
             rightLift.setPower(Math.abs(speed));
 
@@ -104,28 +99,14 @@ public class Lift {
             // always end the motion as soon as possible.
             // However, if you require that BOTH motors have finished their moves before the robot continues
             // onto the next step, use (isBusy() || isBusy()) in the loop test.
-            while (opModeIsActive() &&
-                    (runtime.seconds() < timeoutS) &&
-                    (leftDrive.isBusy() && rightDrive.isBusy())) {
-
                 // Display it for the driver.
-                telemetry.addData("Running to",  " %7d :%7d", newLeftTarget,  newRightTarget);
-                telemetry.addData("Currently at",  " at %7d :%7d",
-                        leftDrive.getCurrentPosition(), rightDrive.getCurrentPosition());
-                telemetry.update();
+                myOpMode.telemetry.addData("Running to", targetPosition);
+                myOpMode.telemetry.addData("Currently at",  " at %7d :%7d",
+                        leftLift.getCurrentPosition(), rightLift.getCurrentPosition());
+                myOpMode.telemetry.update();
             }
-
-            // Stop all motion;
-            leftLift.setPower(0);
-            rightLift.setPower(0);
-
-            // Turn off RUN_TO_POSITION
-            leftLift.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-            rightLift.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-
-            sleep(250);   // optional pause after each move.
+              // optional pause after each move.
         }
-    }
 
     public void resetLift(double speed) {
         leftLift.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
