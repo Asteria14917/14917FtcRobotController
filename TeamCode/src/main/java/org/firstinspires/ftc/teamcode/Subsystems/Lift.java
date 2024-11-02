@@ -7,7 +7,7 @@ import com.qualcomm.robotcore.hardware.DcMotor;
 
 public class Lift {
     /* Declare OpMode members. */
-    private LinearOpMode myOpMode = null;   // gain access to methods in the calling OpMode.
+    private final LinearOpMode myOpMode;   // gain access to methods in the calling OpMode.
 
     //lift motors
     public DcMotor rightLift = null;
@@ -107,20 +107,6 @@ public class Lift {
             }
               // optional pause after each move.
         }
-
-    public void resetLift(double speed) {
-        leftLift.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-        rightLift.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-        /*if (touch.isPressed() == false) {
-            leftLift.setPower(speed);
-            rightLift.setPower(speed);
-        } else {
-            leftLift.setPower(0);
-            rightLift.setPower(0);
-        }
-         */
-
-    }
 
 }
 

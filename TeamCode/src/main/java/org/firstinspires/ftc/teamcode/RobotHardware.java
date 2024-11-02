@@ -18,7 +18,7 @@ public class RobotHardware{
         public Lift lift;
 
         // Define a constructor that allows the OpMode to pass a reference to itself.
-        public Robot(LinearOpMode opmode) {
+        public RobotHardware(LinearOpMode opmode) {
             myOpMode = opmode;
         }
 
@@ -40,7 +40,7 @@ public class RobotHardware{
             lift.teleOp();
             scoring.teleOp();
         }
-
+/*
         public void deliver() {
             scoring.pivot.setPosition(scoring.CLAW_HOVER);
             scoring.extension.setPosition(scoring.EXTENSION_OUT - 0.2);
@@ -61,7 +61,7 @@ public class RobotHardware{
             scoring.extension.setPosition(scoring.EXTENSION_IN);
             myOpMode.sleep(400); //new one
         }
-
-        }
-    }
+*/
 }
+
+

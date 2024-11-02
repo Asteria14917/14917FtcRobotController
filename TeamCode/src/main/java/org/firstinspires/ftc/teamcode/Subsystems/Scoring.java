@@ -19,8 +19,9 @@ import com.qualcomm.robotcore.hardware.Servo;
         public static final double CLAW_DOWN = 0.05;
         public static final double CLAW_OPEN = 0.5;
         public static final double CLAW_CLOSED = 0;
-        public static final double PIVOT_HIGH_BASKET = 300;
+        public static final int PIVOT_HIGH_BASKET = 300;
         public static final double PIVOT_LOW_BASKET= 0;
+        public static final int PIVOT_SUBMERSIBLE = 3;
         public static final double WRIST_OUT = 0.3;
         public static final double WRIST_IN = 0;
 
@@ -40,7 +41,7 @@ import com.qualcomm.robotcore.hardware.Servo;
             claw = myOpMode.hardwareMap.get(Servo.class, "claw");
            // extension = myOpMode.hardwareMap.get(Servo.class, "extension");
             clawPivot = myOpMode.hardwareMap.get(Servo.class, "clawPivot");
-            pivot = myOpMode.hardwareMap.get(DcMotor.class, "pivot")
+            pivot = myOpMode.hardwareMap.get(DcMotor.class, "pivot");
 
             claw.setPosition(CLAW_CLOSED);
             //extension.setPosition(EXTENSION_IN);
@@ -52,62 +53,17 @@ import com.qualcomm.robotcore.hardware.Servo;
 
             myOpMode.telemetry.addData(">", "Extension Initialized");
         }
-        public void encoderDrive(double speed,
-                                 double targetPosition,
-                                 double timeoutS) {
-            int targetPosition;
-
-            // Ensure that the OpMode is still active
-            if (opModeIsActive()) {
-
-                // Determine new target position, and pass to motor controller
-                pivot.setTargetPosition(targetPosition);
-
-                // Turn On RUN_TO_POSITION
-                pivot.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-
-                // reset the timeout time and start motion.
-                runtime.reset();
-                pivot.setPower(Math.abs(speed));
-
-                // keep looping while we are still active, and there is time left, and both motors are running.
-                // Note: We use (isBusy() && isBusy()) in the loop test, which means that when EITHER motor hits
-                // its target position, the motion will stop.  This is "safer" in the event that the robot will
-                // always end the motion as soon as possible.
-                // However, if you require that BOTH motors have finished their moves before the robot continues
-                // onto the next step, use (isBusy() || isBusy()) in the loop test.
-                while (opModeIsActive() &&
-                        (runtime.seconds() < timeoutS) &&
-                        (leftDrive.isBusy() && rightDrive.isBusy())) {
-
-                    // Display it for the driver.
-                    telemetry.addData("Running to",  " %7d :%7d", newLeftTarget,  newRightTarget);
-                    telemetry.addData("Currently at",  " at %7d :%7d",
-                            leftDrive.getCurrentPosition(), rightDrive.getCurrentPosition());
-                    telemetry.update();
-                }
-
-                // Stop all motion;
-                pivot.setPower(0);
-                pivot.setPower(0);
-
-                // Turn off RUN_TO_POSITION
-                pivot.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-
-                sleep(250);   // optional pause after each move.
-            }
-        }
 
         public void teleOp() {
             //send positions
             claw.setPosition(CLAW_CLOSED);
             clawPivot.setPosition(CLAW_UP);
             //extension.setPosition(extensionPosition);
-            if(pivotMode == PivotMode.MANUAL) {
+            if (pivotMode == PivotMode.MANUAL) {
             } else if (pivotMode == PivotMode.PIVOT_SUBMERSIBLE) {
-                //liftToPositionPIDClass(300);
+                pivotToTargetPosition(0.5, PIVOT_SUBMERSIBLE);
             } else if (pivotMode == PivotMode.PIVOT_HIGH_BASKET) {
-                // liftToPositionPIDClass(700);
+                pivotToTargetPosition(0.5, PIVOT_HIGH_BASKET);
             }
 
             //set positions
@@ -133,4 +89,41 @@ import com.qualcomm.robotcore.hardware.Servo;
                 clawPivot.setPosition(WRIST_IN);
             }
         }
-    }
+        public void pivotToTargetPosition(double speed,
+                                 int targetPosition){
+
+            // Ensure that the OpMode is still active
+            if (myOpMode.opModeIsActive()) {
+
+                // Determine new target position, and pass to motor controller
+                pivot.setTargetPosition(targetPosition);
+
+                // Turn On RUN_TO_POSITION
+                pivot.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+
+                // reset the timeout time and start motion
+                pivot.setPower(Math.abs(speed));
+
+                // keep looping while we are still active, and there is time left, and both motors are running.
+                // Note: We use (isBusy() && isBusy()) in the loop test, which means that when EITHER motor hits
+                // its target position, the motion will stop.  This is "safer" in the event that the robot will
+                // always end the motion as soon as possible.
+                // However, if you require that BOTH motors have finished their moves before the robot continues
+                // onto the next step, use (isBusy() || isBusy()) in the loop test.
+                    // Display it for the driver.
+                    myOpMode.telemetry.addData("Running to", targetPosition);
+                    //myOpMode.telemetry.addData("Currently at",  " at %7d :%7d", targetPosition.getCurrentPosition());
+                    myOpMode.telemetry.update();
+                }
+
+                // Stop all motion;
+                pivot.setPower(0);
+                pivot.setPower(0);
+
+                // Turn off RUN_TO_POSITION
+                pivot.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+
+                // optional pause after each move.
+            }
+        }
+
