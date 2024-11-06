@@ -31,10 +31,10 @@ public class Drivetrain {
     }
 
     public void init() {
-        leftFrontDrive = myOpMode.hardwareMap.get(DcMotor.class, "frontLeftDrive");
+        leftFrontDrive = myOpMode.hardwareMap.get(DcMotor.class, "leftFrontDrive");
         rightFrontDrive = myOpMode.hardwareMap.get(DcMotor.class, "rightFrontDrive");
-        leftBackDrive = myOpMode.hardwareMap.get(DcMotor.class, "backLeftDrive");
-        rightBackDrive = myOpMode.hardwareMap.get(DcMotor.class, "backRightDrive");
+        leftBackDrive = myOpMode.hardwareMap.get(DcMotor.class, "leftBackDrive");
+        rightBackDrive = myOpMode.hardwareMap.get(DcMotor.class, "rightBackDrive");
 
         leftFrontDrive.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         rightFrontDrive.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
@@ -99,20 +99,20 @@ public class Drivetrain {
 
         //Slow and Turbo Buttons
         if (myOpMode.gamepad1.right_bumper) {
-            leftFrontDrive.setPower(leftFrontPower / 7);
-            rightFrontDrive.setPower(rightFrontPower / 7);
-            leftBackDrive.setPower(leftBackPower / 7);
-            rightBackDrive.setPower(rightBackPower / 7);
+            leftFrontDrive.setPower(leftFrontPower);
+            rightFrontDrive.setPower(rightFrontPower);
+            leftBackDrive.setPower(leftBackPower);
+            rightBackDrive.setPower(rightBackPower);
         } else if (myOpMode.gamepad1.left_bumper) {
             leftFrontDrive.setPower(leftFrontPower / 7);
             rightFrontDrive.setPower(rightFrontPower / 7);
             leftBackDrive.setPower(leftBackPower / 7);
             rightBackDrive.setPower(rightBackPower / 7);
         } else {
-            leftFrontDrive.setPower(leftFrontPower / 7);
-            rightFrontDrive.setPower(rightFrontPower / 7);
-            leftBackDrive.setPower(leftBackPower / 7);
-            rightBackDrive.setPower(rightBackPower / 7);
+            leftFrontDrive.setPower(leftFrontPower/2);
+            rightFrontDrive.setPower(rightFrontPower/2);
+            leftBackDrive.setPower(leftBackPower/2);
+            rightBackDrive.setPower(rightBackPower/2);
         }
 
     }

@@ -15,15 +15,16 @@ import com.qualcomm.robotcore.hardware.Servo;
         public DcMotor pivot = null;
 
         // Define Drive constants.  Make them public so they CAN be used by the calling OpMode
-        public static final double CLAW_UP = 0.9;
+        public static final double CLAW_UP = 0.3;
         public static final double CLAW_DOWN = 0.05;
         public static final double CLAW_OPEN = 0.5;
         public static final double CLAW_CLOSED = 0;
         public static final int PIVOT_HIGH_BASKET = 300;
         public static final double PIVOT_LOW_BASKET= 0;
         public static final int PIVOT_SUBMERSIBLE = 3;
-        public static final double WRIST_OUT = 0.3;
-        public static final double WRIST_IN = 0;
+        public static final double WRIST_OUT = 0.6;
+        public static final double WRIST_IN = 0.1;
+        public static final double WRIST_MID = 0.4;
 
 
         public enum PivotMode {
@@ -43,9 +44,9 @@ import com.qualcomm.robotcore.hardware.Servo;
             clawPivot = myOpMode.hardwareMap.get(Servo.class, "clawPivot");
             pivot = myOpMode.hardwareMap.get(DcMotor.class, "pivot");
 
-            claw.setPosition(CLAW_CLOSED);
+            //claw.setPosition(CLAW_CLOSED);
             //extension.setPosition(EXTENSION_IN);
-            clawPivot.setPosition(CLAW_UP);
+            //clawPivot.setPosition(CLAW_UP);
 
             //extensionPosition = EXTENSION_IN;
             //pivotPosition = CLAW_UP;
@@ -56,10 +57,11 @@ import com.qualcomm.robotcore.hardware.Servo;
 
         public void teleOp() {
             //send positions
-            claw.setPosition(CLAW_CLOSED);
-            clawPivot.setPosition(CLAW_UP);
+            //claw.setPosition(CLAW_CLOSED);
+            //clawPivot.setPosition(CLAW_UP);
             //extension.setPosition(extensionPosition);
             if (pivotMode == PivotMode.MANUAL) {
+                pivot.setPower(-myOpMode.gamepad2.left_stick_y);
             } else if (pivotMode == PivotMode.PIVOT_SUBMERSIBLE) {
                 pivotToTargetPosition(0.5, PIVOT_SUBMERSIBLE);
             } else if (pivotMode == PivotMode.PIVOT_HIGH_BASKET) {
@@ -67,26 +69,31 @@ import com.qualcomm.robotcore.hardware.Servo;
             }
 
             //set positions
-            if (myOpMode.gamepad1.a) {
+            if (myOpMode.gamepad2.left_bumper) {
                 claw.setPosition(CLAW_OPEN);
-            } else {
+            } else if(myOpMode.gamepad2.right_bumper){
                 claw.setPosition(CLAW_CLOSED);
             }
-
-            if (myOpMode.gamepad1.a) {
+/*
+            if (myOpMode.gamepad1.) {
                 pivot.setPower(PIVOT_HIGH_BASKET);
             }
 
             if (myOpMode.gamepad1.y) {
                 pivot.setPower(PIVOT_LOW_BASKET);
             }
+            */
 
-            if(myOpMode.gamepad1.dpad_up){
+            if(myOpMode.gamepad2.dpad_up){
                 clawPivot.setPosition(WRIST_OUT);
             }
 
-            if(myOpMode.gamepad1.dpad_down){
+            if(myOpMode.gamepad2.dpad_down){
                 clawPivot.setPosition(WRIST_IN);
+            }
+
+            if(myOpMode.gamepad2.dpad_left){
+                clawPivot.setPosition(WRIST_MID);
             }
         }
         public void pivotToTargetPosition(double speed,
