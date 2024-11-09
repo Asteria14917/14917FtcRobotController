@@ -23,7 +23,7 @@ import com.qualcomm.robotcore.hardware.Servo;
         public static final double PIVOT_LOW_BASKET= 0;
         public static final int PIVOT_SUBMERSIBLE = 3;
         public static final double WRIST_OUT = 0.6;
-        public static final double WRIST_IN = 0.1;
+        public static final double WRIST_IN = 0.3;
         public static final double WRIST_MID = 0.4;
 
 

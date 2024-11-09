@@ -117,7 +117,8 @@ public class SensorLimelight3A extends LinearOpMode {
             if (result != null) {
                 // Access general information
                 Pose3D botpose = result.getBotpose();
-
+                //NetworkTable limelightTable = NetworkTableInstance.getdefault().getTable("limelight");
+                //double ts = NetworkTableInstance.getDefault().getTable("limelight").getEntry("ts").getDouble(0);
                 //telemetry.addData("LL Latency", captureLatency + targetingLatency);
                 //telemetry.addData("Parse Latency", parseLatency);
                 //telemetry.addData("PythonOutput", java.util.Arrays.toString(result.getPythonOutput()));
@@ -129,6 +130,7 @@ public class SensorLimelight3A extends LinearOpMode {
                     //telemetry.addData("tync", result.getTyNC());
                     //telemetry.addData("colorResults", result.getColorResults());
                     telemetry.addData("ta", result.getTa());
+
 
                     telemetry.addData("Botpose", botpose.toString());
 

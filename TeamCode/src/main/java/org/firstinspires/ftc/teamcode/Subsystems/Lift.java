@@ -15,9 +15,11 @@ public class Lift {
     //public TouchSensor touch = null;
 
     //lift constants
-    public static final int EXT_HIGH_BASKET= 1;
+    public static final int EXT_HIGH_BASKET= 300;
     public static final int EXT_RETRACTED = 0;
-    public static final int EXT_HIGH_CHAMBER = 0;
+    public static final int EXT_HIGH_CHAMBER = 200;
+    public static final int EXT_LOW_BASKET = 100;
+    public static final double LIFT_SPEED = 0.5;
 
     //if the subsystem has explicit states, it can be helpful to use an enum to define them
     public enum LiftMode {
@@ -65,14 +67,28 @@ public class Lift {
             } else if (myOpMode.gamepad2.right_trigger > 0.1) {
                 leftLift.setPower(0.7);
                 rightLift.setPower(0.7);
+            } else{
+                leftLift.setPower(0);
+                rightLift.setPower(0);
             }
         } else if (liftMode == LiftMode.HIGH_BASKET) {
-           liftToTargetPosition(0, EXT_HIGH_BASKET);
+           liftToTargetPosition(LIFT_SPEED, EXT_HIGH_BASKET);
         }else if(liftMode == LiftMode.HIGH_CHAMBER) {
-            liftToTargetPosition(0, EXT_HIGH_CHAMBER);
+            liftToTargetPosition(LIFT_SPEED, EXT_HIGH_CHAMBER);
         }else if(liftMode == LiftMode.RETRACTED){
-            liftToTargetPosition(0, EXT_RETRACTED);
-
+            liftToTargetPosition(LIFT_SPEED, EXT_RETRACTED);
+        }else if(liftMode == LiftMode.LOW_BASKET){
+            liftToTargetPosition(LIFT_SPEED, EXT_LOW_BASKET);
+        }
+        //setting lift state
+        if(myOpMode.gamepad2.y){
+            liftMode = LiftMode.HIGH_BASKET;
+        }else if(myOpMode.gamepad2.x){
+            liftMode = LiftMode.HIGH_CHAMBER;
+        }else if(myOpMode.gamepad2.b){
+            liftMode = LiftMode.LOW_BASKET;
+        }else if(myOpMode.gamepad2.a){
+            liftMode = LiftMode.RETRACTED;
         }
     }
 
