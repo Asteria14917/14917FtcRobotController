@@ -7,10 +7,12 @@ import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
+import org.firstinspires.ftc.teamcode.Samples.GoBildaPinpointDriver;
+
 public class Drivetrain {
     /* Declare OpMode members. */
     private LinearOpMode myOpMode = null;   // gain access to methods in the calling OpMode.
-
+    GoBildaPinpointDriver odo; // Declare OpMode member for the Odometry Computer
     ElapsedTime time = new ElapsedTime();
 
     //drivetrain
@@ -19,6 +21,12 @@ public class Drivetrain {
     public DcMotor rightBackDrive = null;
     public DcMotor leftBackDrive = null;
 
+    PIDController xPID;
+    PIDController yPID;
+    PIDController headingPID;
+    public static double HEADING_KP = 0.9;
+    public static double HEADING_KI = 0.0;
+    public static double HEADING_KD = 0.0;
     public static final double DRIVE_KP = 0.01;
     public static final double DRIVE_KI = 0.0;
     public static final double DRIVE_KD = 0;//0.0003;
@@ -31,6 +39,18 @@ public class Drivetrain {
     }
 
     public void init() {
+
+        xPID = new PIDController(DRIVE_KP, DRIVE_KI, DRIVE_KD);
+        yPID = new PIDController(DRIVE_KP, DRIVE_KI, DRIVE_KD);
+        headingPID = new PIDController(HEADING_KP, HEADING_KI, HEADING_KD);
+
+        xPID.maxOut = DRIVE_MAX_OUT;
+        yPID.maxOut = DRIVE_MAX_OUT;
+        headingPID.maxOut = DRIVE_MAX_OUT;
+
+
+        initializePinPoint();
+        odo = myOpMode.hardwareMap.get(GoBildaPinpointDriver.class,"odo");
         leftFrontDrive = myOpMode.hardwareMap.get(DcMotor.class, "leftFrontDrive");
         rightFrontDrive = myOpMode.hardwareMap.get(DcMotor.class, "rightFrontDrive");
         leftBackDrive = myOpMode.hardwareMap.get(DcMotor.class, "leftBackDrive");
@@ -50,6 +70,53 @@ public class Drivetrain {
         useEncoders();
 
         myOpMode.telemetry.addData(">", "Drivetrain Initialized");
+    }
+
+    public void initializePinPoint(){
+         /*
+        Set the odometry pod positions relative to the point that the odometry computer tracks around.
+        The X pod offset refers to how far sideways from the tracking point the
+        X (forward) odometry pod is. Left of the center is a positive number,
+        right of center is a negative number. the Y pod offset refers to how far forwards from
+        the tracking point the Y (strafe) odometry pod is. forward of center is a positive number,
+        backwards is a negative number.
+         */
+        odo.setOffsets(-180.0, -50.0); //these are tuned for 3110-0002-0001 Product Insight #1
+
+        /*
+        Set the kind of pods used by your robot. If you're using goBILDA odometry pods, select either
+        the goBILDA_SWINGARM_POD, or the goBILDA_4_BAR_POD.
+        If you're using another kind of odometry pod, uncomment setEncoderResolution and input the
+        number of ticks per mm of your odometry pod.
+         */
+        odo.setEncoderResolution(GoBildaPinpointDriver.GoBildaOdometryPods.goBILDA_4_BAR_POD);
+        //odo.setEncoderResolution(13.26291192);
+
+
+        /*
+        Set the direction that each of the two odometry pods count. The X (forward) pod should
+        increase when you move the robot forward. And the Y (strafe) pod should increase when
+        you move the robot to the left.
+         */
+        odo.setEncoderDirections(GoBildaPinpointDriver.EncoderDirection.REVERSED, GoBildaPinpointDriver.EncoderDirection.REVERSED);
+
+
+        /*
+        Before running the robot, recalibrate the IMU. This needs to happen when the robot is stationary
+        The IMU will automatically calibrate when first powered on, but recalibrating before running
+        the robot is a good idea to ensure that the calibration is "good".
+        resetPosAndIMU will reset the position to 0,0,0 and also recalibrate the IMU.
+        This is recommended before you run your autonomous, as a bad initial calibration can cause
+        an incorrect starting value for x, y, and heading.
+         */
+        //odo.recalibrateIMU();
+        odo.resetPosAndIMU();
+
+        myOpMode.telemetry.addData("Status", "Initialized");
+        myOpMode.telemetry.addData("X offset", odo.getXOffset());
+        myOpMode.telemetry.addData("Y offset", odo.getYOffset());
+        myOpMode.telemetry.addData("Device Version Number:", odo.getDeviceVersion());
+        myOpMode.telemetry.addData("Device SCalar", odo.getYawScalar());
     }
 
     public void resetEncoders() {
@@ -115,6 +182,33 @@ public class Drivetrain {
             rightBackDrive.setPower(rightBackPower/2);
         }
 
+    }
+
+    public void driveToPose(double xTarget, double yTarget, double degreeTarget){
+        //double thetaTarget = Math.toRadians(degreeTarget);
+            //Use PIDs to calculate motor powers based on error to targets
+            double xPower = xPID.calculate(xTarget, localizer.x);
+            double yPower = yPID.calculate(yTarget, localizer.y);
+
+            double wrappedAngle = angleWrap(thetaTarget - localizer.heading);
+            double tPower = headingPID.calculate(wrappedAngle);
+
+            //rotate the motor powers based on robot heading
+            double xPower_rotated = xPower * Math.cos(-localizer.heading) - yPower * Math.sin(-localizer.heading);
+            double yPower_rotated = xPower * Math.sin(-localizer.heading) + yPower * Math.cos(-localizer.heading);
+
+            // x, y, theta input mixing
+            driveFrontLeft.setPower(xPower_rotated - yPower_rotated - tPower);
+            driveBackLeft.setPower(xPower_rotated + yPower_rotated - tPower);
+            driveFrontRight.setPower(xPower_rotated + yPower_rotated + tPower);
+            driveBackRight.setPower(xPower_rotated - yPower_rotated + tPower);
+
+            localizer.update();
+            localizer.updateDashboard();
+            localizer.telemetry();
+            myOpMode.telemetry.update();
+        }
+        stopMotors();
     }
 
     //to go to the right, have wheels on the right move toward each other and have
