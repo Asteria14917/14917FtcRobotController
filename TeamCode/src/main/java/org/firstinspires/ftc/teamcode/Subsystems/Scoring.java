@@ -20,12 +20,13 @@ import com.qualcomm.robotcore.hardware.Servo;
         public static final double CLAW_OPEN = 0.5;
         public static final double CLAW_CLOSED = 0;
         public static final int PIVOT_HIGH_BASKET = 300;
-        public static final double PIVOT_LOW_BASKET= 0;
+        public static final int PIVOT_LOW_BASKET= 0;
         public static final int PIVOT_SUBMERSIBLE = 3;
         public static final double WRIST_OUT = 0.6;
         public static final double WRIST_IN = 0.3;
         public static final double WRIST_MID = 0.4;
-
+        public static final int PIVOT_LOW_LIMIT = -300;
+        public static final int PIVOT_HIGH_LIMIT = 300;
 
         public enum PivotMode {
             PIVOT_SUBMERSIBLE,
@@ -56,11 +57,16 @@ import com.qualcomm.robotcore.hardware.Servo;
         }
 
         public void teleOp() {
+            myOpMode.telemetry.addData("pivotPosition", pivot.getCurrentPosition());
+            myOpMode.telemetry.addData("pivotMode", pivotMode);
             //send positions
             //claw.setPosition(CLAW_CLOSED);
             //clawPivot.setPosition(CLAW_UP);
             //extension.setPosition(extensionPosition);
-            if (pivotMode == PivotMode.MANUAL) {
+            if (pivotMode == PivotMode.MANUAL
+                    && pivot.getCurrentPosition() > PIVOT_LOW_LIMIT
+                    && pivot.getCurrentPosition() < PIVOT_HIGH_LIMIT)
+            {
                 pivot.setPower(-myOpMode.gamepad2.left_stick_y);
             } else if (pivotMode == PivotMode.PIVOT_SUBMERSIBLE) {
                 pivotToTargetPosition(0.5, PIVOT_SUBMERSIBLE);

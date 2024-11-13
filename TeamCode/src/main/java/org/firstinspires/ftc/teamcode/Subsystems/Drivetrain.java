@@ -1,12 +1,10 @@
 package org.firstinspires.ftc.teamcode.Subsystems;
 
-//import static org.firstinspires.ftc.teamcode.MotionProfile.motionProfile;
-//import static org.firstinspires.ftc.teamcode.MotionProfile.motionProfileTime;
-
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
+import org.firstinspires.ftc.teamcode.PIDController;
 import org.firstinspires.ftc.teamcode.Samples.GoBildaPinpointDriver;
 
 public class Drivetrain {
@@ -50,7 +48,7 @@ public class Drivetrain {
 
 
         initializePinPoint();
-        odo = myOpMode.hardwareMap.get(GoBildaPinpointDriver.class,"odo");
+        odo = myOpMode.hardwareMap.get(GoBildaPinpointDriver.class, "odo");
         leftFrontDrive = myOpMode.hardwareMap.get(DcMotor.class, "leftFrontDrive");
         rightFrontDrive = myOpMode.hardwareMap.get(DcMotor.class, "rightFrontDrive");
         leftBackDrive = myOpMode.hardwareMap.get(DcMotor.class, "leftBackDrive");
@@ -72,7 +70,7 @@ public class Drivetrain {
         myOpMode.telemetry.addData(">", "Drivetrain Initialized");
     }
 
-    public void initializePinPoint(){
+    public void initializePinPoint() {
          /*
         Set the odometry pod positions relative to the point that the odometry computer tracks around.
         The X pod offset refers to how far sideways from the tracking point the
@@ -158,10 +156,10 @@ public class Drivetrain {
         max = Math.max(max, Math.abs(rightBackPower));
 
         if (max > 1.0) {
-            leftFrontPower  /= max;
+            leftFrontPower /= max;
             rightFrontPower /= max;
-            leftBackPower   /= max;
-            rightBackPower  /= max;
+            leftBackPower /= max;
+            rightBackPower /= max;
         }
 
         //Slow and Turbo Buttons
@@ -176,72 +174,38 @@ public class Drivetrain {
             leftBackDrive.setPower(leftBackPower / 7);
             rightBackDrive.setPower(rightBackPower / 7);
         } else {
-            leftFrontDrive.setPower(leftFrontPower/2);
-            rightFrontDrive.setPower(rightFrontPower/2);
-            leftBackDrive.setPower(leftBackPower/2);
-            rightBackDrive.setPower(rightBackPower/2);
+            leftFrontDrive.setPower(leftFrontPower / 2);
+            rightFrontDrive.setPower(rightFrontPower / 2);
+            leftBackDrive.setPower(leftBackPower / 2);
+            rightBackDrive.setPower(rightBackPower / 2);
         }
 
     }
-
-    public void driveToPose(double xTarget, double yTarget, double degreeTarget){
+/*
+    public void driveToPose(double xTarget, double yTarget, double degreeTarget) {
         //double thetaTarget = Math.toRadians(degreeTarget);
-            //Use PIDs to calculate motor powers based on error to targets
-            double xPower = xPID.calculate(xTarget, localizer.x);
-            double yPower = yPID.calculate(yTarget, localizer.y);
+        //Use PIDs to calculate motor powers based on error to targets
+        double xPower = xPID.calculate(xTarget, localizer.x);
+        double yPower = yPID.calculate(yTarget, localizer.y);
 
-            double wrappedAngle = angleWrap(thetaTarget - localizer.heading);
-            double tPower = headingPID.calculate(wrappedAngle);
+        double wrappedAngle = angleWrap(thetaTarget - localizer.heading);
+        double tPower = headingPID.calculate(wrappedAngle);
 
-            //rotate the motor powers based on robot heading
-            double xPower_rotated = xPower * Math.cos(-localizer.heading) - yPower * Math.sin(-localizer.heading);
-            double yPower_rotated = xPower * Math.sin(-localizer.heading) + yPower * Math.cos(-localizer.heading);
+        //rotate the motor powers based on robot heading
+        double xPower_rotated = xPower * Math.cos(-localizer.heading) - yPower * Math.sin(-localizer.heading);
+        double yPower_rotated = xPower * Math.sin(-localizer.heading) + yPower * Math.cos(-localizer.heading);
 
-            // x, y, theta input mixing
-            driveFrontLeft.setPower(xPower_rotated - yPower_rotated - tPower);
-            driveBackLeft.setPower(xPower_rotated + yPower_rotated - tPower);
-            driveFrontRight.setPower(xPower_rotated + yPower_rotated + tPower);
-            driveBackRight.setPower(xPower_rotated - yPower_rotated + tPower);
+        // x, y, theta input mixing
+        leftFrontDrive.setPower(xPower_rotated - yPower_rotated - tPower);
+        leftBackDrive.setPower(xPower_rotated + yPower_rotated - tPower);
+        rightFrontDrive.setPower(xPower_rotated + yPower_rotated + tPower);
+        rightBackDrive.setPower(xPower_rotated - yPower_rotated + tPower);
 
-            localizer.update();
-            localizer.updateDashboard();
-            localizer.telemetry();
-            myOpMode.telemetry.update();
-        }
-        stopMotors();
+        localizer.update();
+        localizer.updateDashboard();
+        localizer.telemetry();
+        myOpMode.telemetry.update();
     }
 
-    //to go to the right, have wheels on the right move toward each other and have
-    //wheels on the left move away from each other
-    //just changing distance to -1 but have to somehow make the loop above end to strafe
-
-    public void encoderTurn(float inches, double power) {
-        final double WHEEL_DIAMETER = 4;
-        final double COUNTS_PER_INCH = 537.6 / (Math.PI * WHEEL_DIAMETER);
-        final int STRAIGHT_COUNTS = (int) (COUNTS_PER_INCH * inches * -1);
-        while (Math.abs(rightFrontDrive.getCurrentPosition()) < Math.abs(STRAIGHT_COUNTS)) {
-            turn(power);
-            myOpMode.telemetry.addData("STRAIGHT_COUNTS", STRAIGHT_COUNTS);
-            myOpMode.telemetry.addData("POSITION", rightFrontDrive.getCurrentPosition());
-            myOpMode.telemetry.update();
-        }
-        stopMotors();
-
-        return;
-    }
-
-    public void stopMotors() {
-        rightFrontDrive.setPower(0);
-        leftFrontDrive.setPower(0);
-        rightBackDrive.setPower(0);
-        leftBackDrive.setPower(0);
-    }
-
-    public void turn(double power) {
-        rightFrontDrive.setPower(power);
-        leftFrontDrive.setPower(-power);
-        rightBackDrive.setPower(power);
-        leftBackDrive.setPower(-power);
-    }
+ */
 }
-

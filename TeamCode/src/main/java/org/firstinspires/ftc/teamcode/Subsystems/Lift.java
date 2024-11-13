@@ -58,13 +58,15 @@ public class Lift {
 
     public void teleOp() {
         myOpMode.telemetry.addData("leftLiftPosition", leftLift.getCurrentPosition());
+        myOpMode.telemetry.addData("rightLiftPosition", rightLift.getCurrentPosition());
+        myOpMode.telemetry.addData("liftMode", liftMode);
         leftLift.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         rightLift.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         if(liftMode == LiftMode.MANUAL) {
-            if (myOpMode.gamepad2.left_trigger > 0.1) {
+            if (myOpMode.gamepad2.left_trigger > 0.1 && leftLift.getCurrentPosition() > 0) {
                 leftLift.setPower(-0.3);
                 rightLift.setPower(-0.3);
-            } else if (myOpMode.gamepad2.right_trigger > 0.1) {
+            } else if (myOpMode.gamepad2.right_trigger > 0.1 && leftLift.getCurrentPosition() < EXT_HIGH_BASKET) {
                 leftLift.setPower(0.7);
                 rightLift.setPower(0.7);
             } else{
