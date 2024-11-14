@@ -19,14 +19,17 @@ import com.qualcomm.robotcore.hardware.Servo;
         public static final double CLAW_DOWN = 0.05;
         public static final double CLAW_OPEN = 0.5;
         public static final double CLAW_CLOSED = 0;
-        public static final int PIVOT_HIGH_BASKET = 300;
+        public static final int PIVOT_HIGH_BASKET = 1774;
         public static final int PIVOT_LOW_BASKET= 0;
-        public static final int PIVOT_SUBMERSIBLE = 3;
+        public static final int PIVOT_SUBMERSIBLE = -1114;
         public static final double WRIST_OUT = 0.6;
         public static final double WRIST_IN = 0.3;
         public static final double WRIST_MID = 0.4;
-        public static final int PIVOT_LOW_LIMIT = -300;
-        public static final int PIVOT_HIGH_LIMIT = 300;
+        public static final int PIVOT_LOW_LIMIT = -1200;
+        public static final int PIVOT_HIGH_LIMIT = 1800;
+
+        //1774 for high limit
+        //-1114 for low limit
 
         public enum PivotMode {
             PIVOT_SUBMERSIBLE,
@@ -44,7 +47,8 @@ import com.qualcomm.robotcore.hardware.Servo;
            // extension = myOpMode.hardwareMap.get(Servo.class, "extension");
             clawPivot = myOpMode.hardwareMap.get(Servo.class, "clawPivot");
             pivot = myOpMode.hardwareMap.get(DcMotor.class, "pivot");
-
+            pivot.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+            pivot.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
             //claw.setPosition(CLAW_CLOSED);
             //extension.setPosition(EXTENSION_IN);
             //clawPivot.setPosition(CLAW_UP);
@@ -63,15 +67,28 @@ import com.qualcomm.robotcore.hardware.Servo;
             //claw.setPosition(CLAW_CLOSED);
             //clawPivot.setPosition(CLAW_UP);
             //extension.setPosition(extensionPosition);
-            if (pivotMode == PivotMode.MANUAL
-                    && pivot.getCurrentPosition() > PIVOT_LOW_LIMIT
-                    && pivot.getCurrentPosition() < PIVOT_HIGH_LIMIT)
+            if (pivotMode == PivotMode.MANUAL)
             {
-                pivot.setPower(-myOpMode.gamepad2.left_stick_y);
+                if(pivot.getCurrentPosition() > PIVOT_LOW_LIMIT && -myOpMode.gamepad2.left_stick_y < -.1) {
+                    pivot.setPower(-myOpMode.gamepad2.left_stick_y/2);
+                }else if(pivot.getCurrentPosition() < PIVOT_HIGH_LIMIT && -myOpMode.gamepad2.left_stick_y >.1){
+                    pivot.setPower(-myOpMode.gamepad2.left_stick_y/2);
+                }else{
+                    pivot.setPower(0);
+                }
             } else if (pivotMode == PivotMode.PIVOT_SUBMERSIBLE) {
                 pivotToTargetPosition(0.5, PIVOT_SUBMERSIBLE);
             } else if (pivotMode == PivotMode.PIVOT_HIGH_BASKET) {
                 pivotToTargetPosition(0.5, PIVOT_HIGH_BASKET);
+            }
+
+            if(Math.abs(myOpMode.gamepad2.left_stick_y) > 0.1){
+                pivotMode = PivotMode.MANUAL;
+                pivot.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+            }else if(myOpMode.gamepad2.y){
+                pivotMode = PivotMode.PIVOT_HIGH_BASKET;
+            }else if(myOpMode.gamepad2.x){
+                pivotMode = PivotMode.PIVOT_SUBMERSIBLE;
             }
 
             //set positions
@@ -129,12 +146,6 @@ import com.qualcomm.robotcore.hardware.Servo;
                     myOpMode.telemetry.update();
                 }
 
-                // Stop all motion;
-                pivot.setPower(0);
-                pivot.setPower(0);
-
-                // Turn off RUN_TO_POSITION
-                pivot.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
 
                 // optional pause after each move.
             }

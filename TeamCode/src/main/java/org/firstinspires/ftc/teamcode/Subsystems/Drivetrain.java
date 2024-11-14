@@ -46,9 +46,9 @@ public class Drivetrain {
         yPID.maxOut = DRIVE_MAX_OUT;
         headingPID.maxOut = DRIVE_MAX_OUT;
 
-
-        initializePinPoint();
         odo = myOpMode.hardwareMap.get(GoBildaPinpointDriver.class, "odo");
+        initializePinPoint();
+
         leftFrontDrive = myOpMode.hardwareMap.get(DcMotor.class, "leftFrontDrive");
         rightFrontDrive = myOpMode.hardwareMap.get(DcMotor.class, "rightFrontDrive");
         leftBackDrive = myOpMode.hardwareMap.get(DcMotor.class, "leftBackDrive");

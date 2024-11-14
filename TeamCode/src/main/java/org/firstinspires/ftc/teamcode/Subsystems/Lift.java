@@ -73,17 +73,21 @@ public class Lift {
                 leftLift.setPower(0);
                 rightLift.setPower(0);
             }
-        } else if (liftMode == LiftMode.HIGH_BASKET) {
-           liftToTargetPosition(LIFT_SPEED, EXT_HIGH_BASKET);
         }else if(liftMode == LiftMode.HIGH_CHAMBER) {
             liftToTargetPosition(LIFT_SPEED, EXT_HIGH_CHAMBER);
         }else if(liftMode == LiftMode.RETRACTED){
             liftToTargetPosition(LIFT_SPEED, EXT_RETRACTED);
+        } else if (liftMode == LiftMode.HIGH_BASKET) {
+            liftToTargetPosition(LIFT_SPEED, EXT_HIGH_BASKET);
         }else if(liftMode == LiftMode.LOW_BASKET){
             liftToTargetPosition(LIFT_SPEED, EXT_LOW_BASKET);
         }
         //setting lift state
-        if(myOpMode.gamepad2.y){
+        if(Math.abs(myOpMode.gamepad2.left_trigger) > 0.1 || Math.abs(myOpMode.gamepad2.right_trigger) < 0.1){
+            liftMode = LiftMode.MANUAL;
+            rightLift.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+            leftLift.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        }else if(myOpMode.gamepad2.y){
             liftMode = LiftMode.HIGH_BASKET;
         }else if(myOpMode.gamepad2.x){
             liftMode = LiftMode.HIGH_CHAMBER;
@@ -102,6 +106,7 @@ public class Lift {
 
             // Determine new target position, and pass to motor controller
             rightLift.setTargetPosition(targetPosition);
+            leftLift.setTargetPosition(targetPosition);
 
             // Turn On RUN_TO_POSITION
             rightLift.setMode(DcMotor.RunMode.RUN_TO_POSITION);
