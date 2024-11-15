@@ -142,8 +142,7 @@ import com.qualcomm.robotcore.hardware.Servo;
                 // onto the next step, use (isBusy() || isBusy()) in the loop test.
                     // Display it for the driver.
                     myOpMode.telemetry.addData("Running to", targetPosition);
-                    //myOpMode.telemetry.addData("Currently at",  " at %7d :%7d", targetPosition.getCurrentPosition());
-                    myOpMode.telemetry.update();
+                    //myOpMode.telemetry.addData("Currently at",  " at %7d :%7d", targetPosition.getCurrentPositio
                 }
 
 

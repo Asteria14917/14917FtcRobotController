@@ -15,10 +15,10 @@ public class Lift {
     //public TouchSensor touch = null;
 
     //lift constants
-    public static final int EXT_HIGH_BASKET= 300;
+    public static final int EXT_HIGH_BASKET= 2548;
     public static final int EXT_RETRACTED = 0;
-    public static final int EXT_HIGH_CHAMBER = 200;
-    public static final int EXT_LOW_BASKET = 100;
+    public static final int EXT_HIGH_CHAMBER = 1180;
+    public static final int EXT_LOW_BASKET = 1180;
     public static final double LIFT_SPEED = 0.5;
 
     //if the subsystem has explicit states, it can be helpful to use an enum to define them
@@ -83,18 +83,18 @@ public class Lift {
             liftToTargetPosition(LIFT_SPEED, EXT_LOW_BASKET);
         }
         //setting lift state
-        if(Math.abs(myOpMode.gamepad2.left_trigger) > 0.1 || Math.abs(myOpMode.gamepad2.right_trigger) < 0.1){
+        if(Math.abs(myOpMode.gamepad2.left_trigger) > 0.1 || Math.abs(myOpMode.gamepad2.right_trigger) > 0.1){
             liftMode = LiftMode.MANUAL;
             rightLift.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
             leftLift.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         }else if(myOpMode.gamepad2.y){
-            liftMode = LiftMode.HIGH_BASKET;
+            //liftMode = LiftMode.HIGH_BASKET;
         }else if(myOpMode.gamepad2.x){
-            liftMode = LiftMode.HIGH_CHAMBER;
+            //liftMode = LiftMode.HIGH_CHAMBER;
         }else if(myOpMode.gamepad2.b){
-            liftMode = LiftMode.LOW_BASKET;
+            //liftMode = LiftMode.LOW_BASKET;
         }else if(myOpMode.gamepad2.a){
-            liftMode = LiftMode.RETRACTED;
+            //liftMode = LiftMode.RETRACTED;
         }
     }
 
@@ -126,7 +126,6 @@ public class Lift {
                 myOpMode.telemetry.addData("Running to", targetPosition);
                 myOpMode.telemetry.addData("Currently at",  " at %7d :%7d",
                         leftLift.getCurrentPosition(), rightLift.getCurrentPosition());
-                myOpMode.telemetry.update();
             }
               // optional pause after each move.
         }
