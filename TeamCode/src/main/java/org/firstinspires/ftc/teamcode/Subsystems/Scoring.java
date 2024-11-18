@@ -15,16 +15,14 @@ import com.qualcomm.robotcore.hardware.Servo;
         public DcMotor pivot = null;
 
         // Define Drive constants.  Make them public so they CAN be used by the calling OpMode
-        public static final double CLAW_UP = 0.3;
-        public static final double CLAW_DOWN = 0.05;
         public static final double CLAW_OPEN = 0.5;
-        public static final double CLAW_CLOSED = 0;
+        public static final double CLAW_CLOSED = 0.15;
         public static final int PIVOT_HIGH_BASKET = 1774;
         public static final int PIVOT_LOW_BASKET= 0;
-        public static final int PIVOT_SUBMERSIBLE = -1114;
-        public static final double WRIST_OUT = 0.6;
-        public static final double WRIST_IN = 0.3;
-        public static final double WRIST_MID = 0.4;
+        public static final int PIVOT_SUBMERSIBLE = -1050;
+        public static final double WRIST_OUT = 0.9;
+        public static final double WRIST_IN = 0.2;
+        public static final double WRIST_MID = 0.5;
         public static final int PIVOT_LOW_LIMIT = -1200;
         public static final int PIVOT_HIGH_LIMIT = 1800;
 
@@ -90,7 +88,6 @@ import com.qualcomm.robotcore.hardware.Servo;
             }else if(myOpMode.gamepad2.x){
                 pivotMode = PivotMode.PIVOT_SUBMERSIBLE;
             }
-
             //set positions
             if (myOpMode.gamepad2.left_bumper) {
                 claw.setPosition(CLAW_OPEN);
