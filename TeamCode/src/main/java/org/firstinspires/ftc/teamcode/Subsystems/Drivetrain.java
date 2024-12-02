@@ -4,6 +4,7 @@ import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
+import org.firstinspires.ftc.robotcore.external.navigation.Pose2D;
 import org.firstinspires.ftc.teamcode.PIDController;
 import org.firstinspires.ftc.teamcode.Samples.GoBildaPinpointDriver;
 
@@ -22,14 +23,15 @@ public class Drivetrain {
     PIDController xPID;
     PIDController yPID;
     PIDController headingPID;
+
+    Pose2D targetPose;
+
     public static double HEADING_KP = 0.9;
     public static double HEADING_KI = 0.0;
     public static double HEADING_KD = 0.0;
     public static final double DRIVE_KP = 0.01;
     public static final double DRIVE_KI = 0.0;
     public static final double DRIVE_KD = 0;//0.0003;
-    public static final double DRIVE_MAX_ACC = 2000;
-    public static final double DRIVE_MAX_VEL = 3500;
     public static final double DRIVE_MAX_OUT = 0.95;
 
     public Drivetrain(LinearOpMode opmode) {
