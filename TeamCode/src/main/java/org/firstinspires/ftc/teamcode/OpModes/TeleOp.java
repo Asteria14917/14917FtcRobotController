@@ -6,7 +6,7 @@ import org.firstinspires.ftc.teamcode.Subsystems.Drivetrain;
 import org.firstinspires.ftc.teamcode.Subsystems.Lift;
 import org.firstinspires.ftc.teamcode.Subsystems.Scoring;
 
-@com.qualcomm.robotcore.eventloop.opmode.TeleOp(name="Meet 0 TeleOp", group="Linear OpMode")
+@com.qualcomm.robotcore.eventloop.opmode.TeleOp(name="Meet 2 TeleOp", group="Linear OpMode")
 public class TeleOp extends LinearOpMode {
 
     Drivetrain drivetrain;
