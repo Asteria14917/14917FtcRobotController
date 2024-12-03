@@ -2,30 +2,42 @@ package org.firstinspires.ftc.teamcode.OpModes;
 
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 
-import org.firstinspires.ftc.teamcode.Subsystems.RobotHardware;
+import org.firstinspires.ftc.teamcode.Subsystems.Drivetrain;
+import org.firstinspires.ftc.teamcode.Subsystems.Lift;
+import org.firstinspires.ftc.teamcode.Subsystems.Scoring;
 
-@com.qualcomm.robotcore.eventloop.opmode.TeleOp(name="TeleOp", group="Linear OpMode")
+@com.qualcomm.robotcore.eventloop.opmode.TeleOp(name="Meet 0 TeleOp", group="Linear OpMode")
 public class TeleOp extends LinearOpMode {
 
-    //declaring instance of robot hardware
-    RobotHardware robot;
+    Drivetrain drivetrain;
+    Lift lift;
+    Scoring scoring;
 
 
     @Override
     public void runOpMode() {
-        //calling constructor
-        robot = new RobotHardware(this);
-        //calling init function
-        robot.init();
+
+        drivetrain = new Drivetrain(this);
+        lift = new Lift(this);
+        scoring = new Scoring(this);
+
+        drivetrain.init();
+        lift.init();
+        scoring.init();
+
         // Wait for the game to start (driver presses START)
-        telemetry.addData("Status", "Waiting for Start");
+        telemetry.addData("Status", "Initialized");
         telemetry.update();
+
         waitForStart();
 
 
         // run until the end of the match (driver presses STOP)
         while (opModeIsActive()) {
-            robot.teleOp();
+            drivetrain.teleOp();
+            lift.teleOp();
+            scoring.teleOp();
+            telemetry.update();
         }
     }
 }

@@ -5,6 +5,9 @@ package org.firstinspires.ftc.teamcode.Subsystems;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
 
+import org.firstinspires.ftc.teamcode.Utility.PIDController;
+
+
 public class Lift {
     /* Declare OpMode members. */
     private final LinearOpMode myOpMode;   // gain access to methods in the calling OpMode.
@@ -13,6 +16,16 @@ public class Lift {
     public DcMotor rightLift = null;
     public DcMotor leftLift = null;
     //public TouchSensor touch = null;
+
+    //In Declarations
+    PIDController rightLiftPIDController;
+    PIDController leftLiftPIDController;
+
+    //Defining Variable Constants
+    double LIFT_KP = 0.1;
+    double LIFT_KI = 0.0;
+    double LIFT_KD = 0.01;
+    double LIFT_MAX_OUT = 0.5;
 
     //lift constants
     public static final int EXT_HIGH_BASKET= 2548;
@@ -38,6 +51,9 @@ public class Lift {
     }
 
     public void init() {
+
+        leftLiftPIDController = new PIDController(LIFT_KP,LIFT_KI,LIFT_KD,LIFT_MAX_OUT);
+        rightLiftPIDController = new PIDController(LIFT_KP,LIFT_KI,LIFT_KD,LIFT_MAX_OUT);
 
         rightLift = myOpMode.hardwareMap.get(DcMotor.class, "rightLift");
         leftLift = myOpMode.hardwareMap.get(DcMotor.class, "leftLift");
@@ -88,7 +104,7 @@ public class Lift {
             rightLift.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
             leftLift.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         }else if(myOpMode.gamepad2.y){
-            //liftMode = LiftMode.HIGH_BASKET;
+            liftMode = LiftMode.HIGH_BASKET;
         }else if(myOpMode.gamepad2.x){
             //liftMode = LiftMode.HIGH_CHAMBER;
         }else if(myOpMode.gamepad2.b){
@@ -129,6 +145,7 @@ public class Lift {
             }
               // optional pause after each move.
         }
+
 
 }
 

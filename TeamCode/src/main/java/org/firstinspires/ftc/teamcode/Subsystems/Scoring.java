@@ -67,13 +67,13 @@ import com.qualcomm.robotcore.hardware.Servo;
             //extension.setPosition(extensionPosition);
             if (pivotMode == PivotMode.MANUAL)
             {
-                if(pivot.getCurrentPosition() > PIVOT_LOW_LIMIT && -myOpMode.gamepad2.left_stick_y < -.1) {
-                    pivot.setPower(-myOpMode.gamepad2.left_stick_y/2);
-                }else if(pivot.getCurrentPosition() < PIVOT_HIGH_LIMIT && -myOpMode.gamepad2.left_stick_y >.1){
-                    pivot.setPower(-myOpMode.gamepad2.left_stick_y/2);
-                }else{
-                    pivot.setPower(0);
-                }
+                //if(pivot.getCurrentPosition() > PIVOT_LOW_LIMIT && -myOpMode.gamepad2.left_stick_y < -.1) {
+                    //pivot.setPower(-myOpMode.gamepad2.left_stick_y/2);
+                //}else if(pivot.getCurrentPosition() < PIVOT_HIGH_LIMIT && -myOpMode.gamepad2.left_stick_y >.1){
+                    pivot.setPower(-myOpMode.gamepad2.left_stick_y);
+                //}else{
+                    //pivot.setPower(0);
+                //}
             } else if (pivotMode == PivotMode.PIVOT_SUBMERSIBLE) {
                 pivotToTargetPosition(0.5, PIVOT_SUBMERSIBLE);
             } else if (pivotMode == PivotMode.PIVOT_HIGH_BASKET) {

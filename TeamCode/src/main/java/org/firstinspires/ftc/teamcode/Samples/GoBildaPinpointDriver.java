@@ -37,7 +37,7 @@ import com.acmerobotics.dashboard.telemetry.TelemetryPacket;
 
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
-import org.firstinspires.ftc.teamcode.Pose2D;
+import org.firstinspires.ftc.robotcore.external.navigation.Pose2D;
 
 
 import java.nio.ByteBuffer;
@@ -182,7 +182,7 @@ public class GoBildaPinpointDriver extends I2cDeviceSynchDevice<I2cDeviceSynch> 
     }
 
 
-    void updateDashboard(){
+    public void updateDashboard(){
         TelemetryPacket packet = new TelemetryPacket();
         FtcDashboard dashboard = FtcDashboard.getInstance();
 
