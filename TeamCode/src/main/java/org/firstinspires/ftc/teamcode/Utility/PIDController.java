@@ -1,5 +1,5 @@
 
-package org.firstinspires.ftc.teamcode;
+package org.firstinspires.ftc.teamcode.Utility;
 
 import com.qualcomm.robotcore.util.Range;
 
@@ -18,22 +18,28 @@ public class PIDController {
     double integralSum = 0;
     double integralCap = 0.25;
     public double maxOut = 0.4;
+    public double minOut = 0.1;
     double errorMargin = 1;
     double previousFilterEstimate = 0;
     double currentFilterEstimate = 0;
     double a = 0.5;
+    public boolean targetReached;
 
 
-    public PIDController(double kpIn, double kiIn, double kdIn){
+    public PIDController(double kpIn, double kiIn, double kdIn, double maxOutIn){
         Kp = kpIn;
         Ki = kiIn;
         Kd = kdIn;
+        maxOut = maxOutIn;
     }
 
     public double calculate(double reference, double currentPosition){
 
         // calculate the error
         double error = reference - currentPosition;
+
+        //check if target is reached
+        targetReached = Math.abs(error) < errorMargin;
 
         // rate of change of the error
         double errorChange = (error - lastError);
@@ -65,6 +71,9 @@ public class PIDController {
 
     public double calculate(double error){
 
+        //check if target is reached
+        targetReached = Math.abs(error) < errorMargin;
+
         // rate of change of the error
         double errorChange = (error - lastError);
 
@@ -93,7 +102,7 @@ public class PIDController {
         return out;
     }
 
-    boolean targetReached(double reference, double currentPosition){
+    public boolean targetReached(double reference, double currentPosition){
         double error = reference-currentPosition;
         if(Math.abs(error) > errorMargin){
             return false;

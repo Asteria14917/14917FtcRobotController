@@ -20,9 +20,10 @@ import com.qualcomm.robotcore.hardware.Servo;
         public static final int PIVOT_HIGH_BASKET = 1774;
         public static final int PIVOT_LOW_BASKET= 0;
         public static final int PIVOT_SUBMERSIBLE = -1050;
-        public static final double WRIST_OUT = 0.9;
-        public static final double WRIST_IN = 0.2;
-        public static final double WRIST_MID = 0.5;
+        public static final double PIVOT_SPEED = 0.7;
+        public static final double WRIST_OUT = 0.7;
+        public static final double WRIST_IN = 0.05;
+        public static final double WRIST_MID = 0.4;
         public static final int PIVOT_LOW_LIMIT = -1200;
         public static final int PIVOT_HIGH_LIMIT = 1800;
 
@@ -67,17 +68,17 @@ import com.qualcomm.robotcore.hardware.Servo;
             //extension.setPosition(extensionPosition);
             if (pivotMode == PivotMode.MANUAL)
             {
-                if(pivot.getCurrentPosition() > PIVOT_LOW_LIMIT && -myOpMode.gamepad2.left_stick_y < -.1) {
-                    pivot.setPower(-myOpMode.gamepad2.left_stick_y/2);
-                }else if(pivot.getCurrentPosition() < PIVOT_HIGH_LIMIT && -myOpMode.gamepad2.left_stick_y >.1){
-                    pivot.setPower(-myOpMode.gamepad2.left_stick_y/2);
-                }else{
-                    pivot.setPower(0);
-                }
+                //if(pivot.getCurrentPosition() > PIVOT_LOW_LIMIT && -myOpMode.gamepad2.left_stick_y < -.1) {
+                    //pivot.setPower(-myOpMode.gamepad2.left_stick_y/2);
+                //}else if(pivot.getCurrentPosition() < PIVOT_HIGH_LIMIT && -myOpMode.gamepad2.left_stick_y >.1){
+                    pivot.setPower(-myOpMode.gamepad2.left_stick_y);
+                //}else{
+                    //pivot.setPower(0);
+                //}
             } else if (pivotMode == PivotMode.PIVOT_SUBMERSIBLE) {
-                pivotToTargetPosition(0.5, PIVOT_SUBMERSIBLE);
+                pivotToTargetPosition(PIVOT_SPEED, PIVOT_SUBMERSIBLE);
             } else if (pivotMode == PivotMode.PIVOT_HIGH_BASKET) {
-                pivotToTargetPosition(0.5, PIVOT_HIGH_BASKET);
+                pivotToTargetPosition(PIVOT_SPEED, PIVOT_HIGH_BASKET);
             }
 
             if(Math.abs(myOpMode.gamepad2.left_stick_y) > 0.1){
@@ -85,7 +86,7 @@ import com.qualcomm.robotcore.hardware.Servo;
                 pivot.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
             }else if(myOpMode.gamepad2.y){
                 pivotMode = PivotMode.PIVOT_HIGH_BASKET;
-            }else if(myOpMode.gamepad2.x){
+            }else if(myOpMode.gamepad2.a){
                 pivotMode = PivotMode.PIVOT_SUBMERSIBLE;
             }
             //set positions

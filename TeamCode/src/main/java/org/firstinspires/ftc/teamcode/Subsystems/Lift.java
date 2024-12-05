@@ -2,9 +2,13 @@ package org.firstinspires.ftc.teamcode.Subsystems;
 
     //package org.firstinspires.ftc.teamcode;
 
+import com.acmerobotics.dashboard.config.Config;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
 
+import org.firstinspires.ftc.teamcode.Utility.PIDController;
+
+@Config
 public class Lift {
     /* Declare OpMode members. */
     private final LinearOpMode myOpMode;   // gain access to methods in the calling OpMode.
@@ -13,6 +17,16 @@ public class Lift {
     public DcMotor rightLift = null;
     public DcMotor leftLift = null;
     //public TouchSensor touch = null;
+
+    //In Declarations
+    PIDController rightLiftPIDController;
+    PIDController leftLiftPIDController;
+
+    //Defining Variable Constants
+    public static double LIFT_KP = 0.005;
+    public static double LIFT_KI = 0.0;
+    public static double LIFT_KD = 0.0;
+    public static double LIFT_MAX_OUT = 0.8;
 
     //lift constants
     public static final int EXT_HIGH_BASKET= 2548;
@@ -39,6 +53,9 @@ public class Lift {
 
     public void init() {
 
+        leftLiftPIDController = new PIDController(LIFT_KP,LIFT_KI,LIFT_KD,LIFT_MAX_OUT);
+        rightLiftPIDController = new PIDController(LIFT_KP,LIFT_KI,LIFT_KD,LIFT_MAX_OUT);
+
         rightLift = myOpMode.hardwareMap.get(DcMotor.class, "rightLift");
         leftLift = myOpMode.hardwareMap.get(DcMotor.class, "leftLift");
 
@@ -57,6 +74,8 @@ public class Lift {
     }
 
     public void teleOp() {
+        leftLiftPIDController = new PIDController(LIFT_KP,LIFT_KI,LIFT_KD,LIFT_MAX_OUT);
+        rightLiftPIDController = new PIDController(LIFT_KP,LIFT_KI,LIFT_KD,LIFT_MAX_OUT);
         myOpMode.telemetry.addData("leftLiftPosition", leftLift.getCurrentPosition());
         myOpMode.telemetry.addData("rightLiftPosition", rightLift.getCurrentPosition());
         myOpMode.telemetry.addData("liftMode", liftMode);
@@ -74,13 +93,13 @@ public class Lift {
                 rightLift.setPower(0);
             }
         }else if(liftMode == LiftMode.HIGH_CHAMBER) {
-            liftToTargetPosition(LIFT_SPEED, EXT_HIGH_CHAMBER);
+            liftToPositionPIDClass(EXT_HIGH_CHAMBER);
         }else if(liftMode == LiftMode.RETRACTED){
-            liftToTargetPosition(LIFT_SPEED, EXT_RETRACTED);
+            liftToPositionPIDClass(EXT_RETRACTED);
         } else if (liftMode == LiftMode.HIGH_BASKET) {
-            liftToTargetPosition(LIFT_SPEED, EXT_HIGH_BASKET);
+            liftToPositionPIDClass(EXT_HIGH_BASKET);
         }else if(liftMode == LiftMode.LOW_BASKET){
-            liftToTargetPosition(LIFT_SPEED, EXT_LOW_BASKET);
+            liftToPositionPIDClass(EXT_LOW_BASKET);
         }
         //setting lift state
         if(Math.abs(myOpMode.gamepad2.left_trigger) > 0.1 || Math.abs(myOpMode.gamepad2.right_trigger) > 0.1){
@@ -88,15 +107,32 @@ public class Lift {
             rightLift.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
             leftLift.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         }else if(myOpMode.gamepad2.y){
-            //liftMode = LiftMode.HIGH_BASKET;
+            liftMode = LiftMode.HIGH_BASKET;
         }else if(myOpMode.gamepad2.x){
-            //liftMode = LiftMode.HIGH_CHAMBER;
+            liftMode = LiftMode.HIGH_CHAMBER;
         }else if(myOpMode.gamepad2.b){
-            //liftMode = LiftMode.LOW_BASKET;
+            liftMode = LiftMode.LOW_BASKET;
         }else if(myOpMode.gamepad2.a){
-            //liftMode = LiftMode.RETRACTED;
+            liftMode = LiftMode.RETRACTED;
         }
     }
+
+
+    //sends lift to the target encoder position
+    public void liftToPositionPIDClass(double targetPosition) {
+        double leftOut = leftLiftPIDController.calculate(targetPosition, leftLift.getCurrentPosition());
+        double rightOut = rightLiftPIDController.calculate(targetPosition, rightLift.getCurrentPosition());
+
+        leftLift.setPower(leftOut);
+        rightLift.setPower(rightOut);
+
+        myOpMode.telemetry.addData("LiftLeftPower: ", leftOut);
+        myOpMode.telemetry.addData("LiftRightPower: ", rightOut);
+        myOpMode.telemetry.addData("Running to", targetPosition);
+        myOpMode.telemetry.addData("Currently at",  " at %7d :%7d",
+               leftLift.getCurrentPosition(), rightLift.getCurrentPosition());
+    }
+
 
     public void liftToTargetPosition(double speed,
                              int targetPosition) {
@@ -129,6 +165,7 @@ public class Lift {
             }
               // optional pause after each move.
         }
+
 
 }
 
