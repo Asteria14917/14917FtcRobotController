@@ -40,6 +40,10 @@ public class RobotHardware{
             lift.teleOp();
             scoring.teleOp();
         }
+
+        public void update(){
+            drivetrain.update();
+    }
 /*
         public void deliver() {
             scoring.pivot.setPosition(scoring.CLAW_HOVER);
