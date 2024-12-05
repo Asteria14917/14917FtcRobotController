@@ -5,8 +5,9 @@ import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.robotcore.external.navigation.Pose2D;
-import org.firstinspires.ftc.teamcode.PIDController;
+
 import org.firstinspires.ftc.teamcode.Samples.GoBildaPinpointDriver;
+import org.firstinspires.ftc.teamcode.Utility.PIDController;
 
 public class Drivetrain {
     /* Declare OpMode members. */
@@ -40,13 +41,10 @@ public class Drivetrain {
 
     public void init() {
 
-        xPID = new PIDController(DRIVE_KP, DRIVE_KI, DRIVE_KD);
-        yPID = new PIDController(DRIVE_KP, DRIVE_KI, DRIVE_KD);
-        headingPID = new PIDController(HEADING_KP, HEADING_KI, HEADING_KD);
+        xPID = new PIDController(DRIVE_KP, DRIVE_KI, DRIVE_KD, DRIVE_MAX_OUT);
+        yPID = new PIDController(DRIVE_KP, DRIVE_KI, DRIVE_KD, DRIVE_MAX_OUT);
+        headingPID = new PIDController(HEADING_KP, HEADING_KI, HEADING_KD, DRIVE_MAX_OUT);
 
-        xPID.maxOut = DRIVE_MAX_OUT;
-        yPID.maxOut = DRIVE_MAX_OUT;
-        headingPID.maxOut = DRIVE_MAX_OUT;
 
         odo = myOpMode.hardwareMap.get(GoBildaPinpointDriver.class, "odo");
         initializePinPoint();
