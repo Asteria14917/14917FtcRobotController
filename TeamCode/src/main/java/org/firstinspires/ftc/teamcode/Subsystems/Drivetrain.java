@@ -34,13 +34,13 @@ public class Drivetrain {
 
     Pose2D targetPose;
 
-    public static final double HEADING_KP = 0.9;
-    public static final double HEADING_KI = 0.0;
-    public static final double HEADING_KD = 0.0;
-    public static final double DRIVE_KP = 0.01;
-    public static final double DRIVE_KI = 0.0;
-    public static final double DRIVE_KD = 0;//0.0003;
-    public static final double DRIVE_MAX_OUT = 0.95;
+    public static double HEADING_KP = 0.9;
+    public static double HEADING_KI = 0.0;
+    public static double HEADING_KD = 0.0;
+    public static double DRIVE_KP = 0.01;
+    public static double DRIVE_KI = 0.0;
+    public static double DRIVE_KD = 0;//0.0003;
+    public static double DRIVE_MAX_OUT = 0.95;
 
     public Drivetrain(LinearOpMode opmode) {
         myOpMode = opmode;
@@ -51,6 +51,7 @@ public class Drivetrain {
         xController = new PIDController(DRIVE_KP, DRIVE_KI, DRIVE_KD, DRIVE_MAX_OUT);
         yController = new PIDController(DRIVE_KP, DRIVE_KI, DRIVE_KD, DRIVE_MAX_OUT);
         headingController = new PIDController(HEADING_KP, HEADING_KI, HEADING_KD, DRIVE_MAX_OUT);
+
         localizer = new PinPointLocalizer(myOpMode);
         localizer.init();
 
@@ -108,7 +109,7 @@ public class Drivetrain {
     }
 
     public void update(){
-
+        localizer.update();
         //Use PIDs to calculate motor powers based on error to targets
         double xPower = xController.calculate(targetPose.getX(DistanceUnit.INCH), localizer.getX());
         double yPower = yController.calculate(targetPose.getY(DistanceUnit.INCH), localizer.getY());
@@ -139,7 +140,7 @@ public class Drivetrain {
         myOpMode.telemetry.addData("targetReached", targetReached);
         myOpMode.telemetry.addData("xPower", xPower);
         myOpMode.telemetry.addData("xPowerRotated", xPower_rotated);
-        localizer.update();
+
     }
 
     public void teleOp() {

@@ -89,6 +89,7 @@ public class PinPointLocalizer {
          /*
             gets the current Position (x & y in mm, and heading in degrees) of the robot, and prints it.
              */
+        odo.bulkUpdate();
         pos = odo.getPosition();
 
         String data = String.format(Locale.US, "{X: %.3f, Y: %.3f, H: %.3f}", pos.getX(DistanceUnit.MM), pos.getY(DistanceUnit.MM), pos.getHeading(AngleUnit.DEGREES));

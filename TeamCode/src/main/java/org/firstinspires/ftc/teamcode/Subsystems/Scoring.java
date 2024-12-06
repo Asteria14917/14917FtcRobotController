@@ -15,8 +15,8 @@ import com.qualcomm.robotcore.hardware.Servo;
         public DcMotor pivot = null;
 
         // Define Drive constants.  Make them public so they CAN be used by the calling OpMode
-        public static final double CLAW_OPEN = 0.5;
-        public static final double CLAW_CLOSED = 0.15;
+        public static final double CLAW_OPEN = 0.15;
+        public static final double CLAW_CLOSED = 0.5;
         public static final int PIVOT_HIGH_BASKET = 1774;
         public static final int PIVOT_LOW_BASKET= 0;
         public static final int PIVOT_SUBMERSIBLE = -1050;
