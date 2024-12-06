@@ -43,6 +43,8 @@ public class RobotHardware{
 
         public void update(){
             drivetrain.update();
+            lift.update();
+            scoring.update();
     }
 /*
         public void deliver() {

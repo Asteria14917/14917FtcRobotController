@@ -117,6 +117,64 @@ import com.qualcomm.robotcore.hardware.Servo;
                 clawPivot.setPosition(WRIST_MID);
             }
         }
+        public void update() {
+            myOpMode.telemetry.addData("pivotPosition", pivot.getCurrentPosition());
+            myOpMode.telemetry.addData("pivotMode", pivotMode);
+            //send positions
+            //claw.setPosition(CLAW_CLOSED);
+            //clawPivot.setPosition(CLAW_UP);
+            //extension.setPosition(extensionPosition);
+            if (pivotMode == PivotMode.MANUAL)
+            {
+                //if(pivot.getCurrentPosition() > PIVOT_LOW_LIMIT && -myOpMode.gamepad2.left_stick_y < -.1) {
+                //pivot.setPower(-myOpMode.gamepad2.left_stick_y/2);
+                //}else if(pivot.getCurrentPosition() < PIVOT_HIGH_LIMIT && -myOpMode.gamepad2.left_stick_y >.1){
+                pivot.setPower(-myOpMode.gamepad2.left_stick_y);
+                //}else{
+                //pivot.setPower(0);
+                //}
+            } else if (pivotMode == PivotMode.PIVOT_SUBMERSIBLE) {
+                pivotToTargetPosition(PIVOT_SPEED, PIVOT_SUBMERSIBLE);
+            } else if (pivotMode == PivotMode.PIVOT_HIGH_BASKET) {
+                pivotToTargetPosition(PIVOT_SPEED, PIVOT_HIGH_BASKET);
+            }
+
+            if(Math.abs(myOpMode.gamepad2.left_stick_y) > 0.1){
+                pivotMode = PivotMode.MANUAL;
+                pivot.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+            }else if(myOpMode.gamepad2.y){
+                pivotMode = PivotMode.PIVOT_HIGH_BASKET;
+            }else if(myOpMode.gamepad2.a){
+                pivotMode = PivotMode.PIVOT_SUBMERSIBLE;
+            }
+            //set positions
+            if (myOpMode.gamepad2.left_bumper) {
+                claw.setPosition(CLAW_OPEN);
+            } else if(myOpMode.gamepad2.right_bumper){
+                claw.setPosition(CLAW_CLOSED);
+            }
+/*
+            if (myOpMode.gamepad1.) {
+                pivot.setPower(PIVOT_HIGH_BASKET);
+            }
+
+            if (myOpMode.gamepad1.y) {
+                pivot.setPower(PIVOT_LOW_BASKET);
+            }
+            */
+
+            if(myOpMode.gamepad2.dpad_up){
+                clawPivot.setPosition(WRIST_OUT);
+            }
+
+            if(myOpMode.gamepad2.dpad_down){
+                clawPivot.setPosition(WRIST_IN);
+            }
+
+            if(myOpMode.gamepad2.dpad_left){
+                clawPivot.setPosition(WRIST_MID);
+            }
+        }
         public void pivotToTargetPosition(double speed,
                                  int targetPosition){
 

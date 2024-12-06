@@ -20,7 +20,7 @@ public class Lift {
 
     //In Declarations
     PIDController rightLiftPIDController;
-    PIDController leftLiftPIDController;
+    public PIDController leftLiftPIDController;
 
     //Defining Variable Constants
     public static double LIFT_KP = 0.005;
@@ -29,10 +29,10 @@ public class Lift {
     public static double LIFT_MAX_OUT = 0.8;
 
     //lift constants
-    public static final int EXT_HIGH_BASKET= 2548;
-    public static final int EXT_RETRACTED = 0;
-    public static final int EXT_HIGH_CHAMBER = 1180;
-    public static final int EXT_LOW_BASKET = 1180;
+    public static int EXT_HIGH_BASKET= 2548;
+    public static int EXT_RETRACTED = 0;
+    public static int EXT_HIGH_CHAMBER = 1500;
+    public static int EXT_LOW_BASKET = 1180;
     public static final double LIFT_SPEED = 0.5;
 
     //if the subsystem has explicit states, it can be helpful to use an enum to define them
@@ -115,6 +115,37 @@ public class Lift {
         }else if(myOpMode.gamepad2.a){
             liftMode = LiftMode.RETRACTED;
         }
+    }
+
+    public void update() {
+        leftLiftPIDController = new PIDController(LIFT_KP,LIFT_KI,LIFT_KD,LIFT_MAX_OUT);
+        rightLiftPIDController = new PIDController(LIFT_KP,LIFT_KI,LIFT_KD,LIFT_MAX_OUT);
+        myOpMode.telemetry.addData("leftLiftPosition", leftLift.getCurrentPosition());
+        myOpMode.telemetry.addData("rightLiftPosition", rightLift.getCurrentPosition());
+        myOpMode.telemetry.addData("liftMode", liftMode);
+        leftLift.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        rightLift.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        if(liftMode == LiftMode.MANUAL) {
+            if (myOpMode.gamepad2.left_trigger > 0.1 && leftLift.getCurrentPosition() > 0) {
+                leftLift.setPower(-0.3);
+                rightLift.setPower(-0.3);
+            } else if (myOpMode.gamepad2.right_trigger > 0.1 && leftLift.getCurrentPosition() < EXT_HIGH_BASKET) {
+                leftLift.setPower(0.7);
+                rightLift.setPower(0.7);
+            } else{
+                leftLift.setPower(0);
+                rightLift.setPower(0);
+            }
+        }else if(liftMode == LiftMode.HIGH_CHAMBER) {
+            liftToPositionPIDClass(EXT_HIGH_CHAMBER);
+        }else if(liftMode == LiftMode.RETRACTED){
+            liftToPositionPIDClass(EXT_RETRACTED);
+        } else if (liftMode == LiftMode.HIGH_BASKET) {
+            liftToPositionPIDClass(EXT_HIGH_BASKET);
+        }else if(liftMode == LiftMode.LOW_BASKET){
+            liftToPositionPIDClass(EXT_LOW_BASKET);
+        }
+        //setting lift state
     }
 
 
