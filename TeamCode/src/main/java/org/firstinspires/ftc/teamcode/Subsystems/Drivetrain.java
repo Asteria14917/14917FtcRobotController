@@ -34,13 +34,14 @@ public class Drivetrain {
 
     Pose2D targetPose;
 
-    public static double HEADING_KP = 0.9;
+    public static double HEADING_KP = 0.015;
     public static double HEADING_KI = 0.0;
     public static double HEADING_KD = 0.0;
-    public static double DRIVE_KP = 0.01;
+    public static double DRIVE_KP = 0.03;
     public static double DRIVE_KI = 0.0;
     public static double DRIVE_KD = 0;//0.0003;
-    public static double DRIVE_MAX_OUT = 0.95;
+    public static double DRIVE_MAX_OUT = 0.7;
+    public static double STRAFE_MULTIPLIER = 2;
 
     public Drivetrain(LinearOpMode opmode) {
         myOpMode = opmode;
@@ -124,10 +125,10 @@ public class Drivetrain {
         double yPower_rotated = xPower * Math.sin(-radianHeading) + yPower * Math.cos(-radianHeading);
 
         // x, y, theta input mixing to deliver motor powers
-        leftFrontDrive.setPower(xPower_rotated - yPower_rotated - tPower);
-        leftBackDrive.setPower(xPower_rotated + yPower_rotated - tPower);
-        rightFrontDrive.setPower(xPower_rotated + yPower_rotated + tPower);
-        rightBackDrive.setPower(xPower_rotated - yPower_rotated + tPower);
+        leftFrontDrive.setPower(xPower_rotated - yPower_rotated*STRAFE_MULTIPLIER - tPower);
+        leftBackDrive.setPower(xPower_rotated + yPower_rotated*STRAFE_MULTIPLIER - tPower);
+        rightFrontDrive.setPower(xPower_rotated + yPower_rotated*STRAFE_MULTIPLIER + tPower);
+        rightBackDrive.setPower(xPower_rotated - yPower_rotated*STRAFE_MULTIPLIER + tPower);
 
         //check if drivetrain is still working towards target
         targetReached = (xController.targetReached && yController.targetReached && headingController.targetReached);
