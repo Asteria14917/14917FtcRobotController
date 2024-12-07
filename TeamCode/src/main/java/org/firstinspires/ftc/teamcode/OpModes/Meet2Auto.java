@@ -79,37 +79,55 @@ public class Meet2Auto extends LinearOpMode {
                     robot.scoring.claw.setPosition(Scoring.CLAW_CLOSED);
                     if(timer.seconds() > 2) {
                      currentState = State.DRIVE_FORWARD;
-                     robot.drivetrain.setTargetPose(new Pose2D(DistanceUnit.INCH, 26,targetY, AngleUnit.DEGREES, targetHeading));
+                     robot.drivetrain.setTargetPose(new Pose2D(DistanceUnit.INCH, 26, 3, AngleUnit.DEGREES, 0));
                     }
                     break;
                 case DRIVE_FORWARD:
                     //put condition for switch at the beginning, condition can be based on time or completion of a task
-                    if(robot.drivetrain.targetReached){
+                    if(timer.seconds() > 3){
                         currentState = State.DRIVE_TO_SPECIMEN;
+                        robot.drivetrain.setTargetPose(new Pose2D(DistanceUnit.INCH, 5,-30, AngleUnit.DEGREES, -180));
                         timer.reset();
                     }
                     break;
                 case DRIVE_TO_SPECIMEN:
+                    robot.scoring.claw.setPosition(Scoring.CLAW_OPEN);
+                    robot.lift.liftMode = Lift.LiftMode.RETRACTED;
+                    robot.scoring.clawPivot.setPosition(Scoring.WRIST_AUTO);
+                    if(robot.drivetrain.targetReached || timer.seconds() > 3) {
+                        currentState = State.GET_SPECIMEN;
+                        timer.reset();
+                    }
                     break;
                 case GET_SPECIMEN:
+                    robot.scoring.claw.setPosition(Scoring.CLAW_CLOSED);
+                    //306
                     if(timer.seconds() > 2.0){
                         currentState = State.DRIVE_TO_START;
-                        robot.drivetrain.setTargetPose(startPose);
+                        robot.drivetrain.setTargetPose(new Pose2D(DistanceUnit.INCH, 6,3, AngleUnit.DEGREES, 0));
+                        timer.reset();
                     }
                     break;
                 case DRIVE_TO_START:
-                    if(robot.drivetrain.targetReached){
+                    robot.lift.liftMode = Lift.LiftMode.HIGH_CHAMBER;
+                    robot.scoring.clawPivot.setPosition(Scoring.WRIST_MID);
+                    robot.scoring.claw.setPosition(Scoring.CLAW_CLOSED);
+                    if(robot.drivetrain.targetReached || timer.seconds() > 3.0){
                         currentState = State.DRIVE_FORWARD_TWO;
+                        robot.drivetrain.setTargetPose(new Pose2D(DistanceUnit.INCH, 26, 3, AngleUnit.DEGREES, 0));
                         timer.reset();
                     }
                     break;
                 case DRIVE_FORWARD_TWO:
-                    if(timer.seconds() > 2){
+                    if(timer.seconds() > 4){
                         currentState = State.IDLE;
                         robot.drivetrain.setTargetPose(new Pose2D (DistanceUnit.INCH, targetX, targetY, AngleUnit.DEGREES,targetHeading));
+                        timer.reset();
                     }
                     break;
                 case IDLE:
+                    robot.lift.liftMode = Lift.LiftMode.RETRACTED;
+                    robot.scoring.claw.setPosition(Scoring.CLAW_OPEN);
                     break;
             }
 

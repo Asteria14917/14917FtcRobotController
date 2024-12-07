@@ -31,7 +31,8 @@ public class Lift {
     //lift constants
     public static int EXT_HIGH_BASKET= 2548;
     public static int EXT_RETRACTED = 0;
-    public static int EXT_HIGH_CHAMBER = 1500;
+    //lift for auto
+    public static int EXT_HIGH_CHAMBER = 1900;
     public static int EXT_LOW_BASKET = 1180;
     public static final double LIFT_SPEED = 0.5;
 
