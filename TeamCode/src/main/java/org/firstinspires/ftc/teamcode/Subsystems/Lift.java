@@ -29,10 +29,11 @@ public class Lift {
     public static double LIFT_MAX_OUT = 0.8;
 
     //lift constants
-    public static int EXT_HIGH_BASKET= 2548;
+    public static int EXT_HIGH_BASKET= 2500;
     public static int EXT_RETRACTED = 0;
     //lift for auto
-    public static int EXT_HIGH_CHAMBER = 1900;
+    public static int EXT_HIGH_CHAMBER = 1800;
+    public static int EXT_AUTO_2 = 1800;
     public static int EXT_LOW_BASKET = 1180;
     public static final double LIFT_SPEED = 0.5;
 
@@ -43,6 +44,7 @@ public class Lift {
         HIGH_BASKET,
         HIGH_CHAMBER,
         LOW_CHAMBER,
+        EXT_AUTO_2,
         RETRACTED
     }
 
@@ -90,8 +92,8 @@ public class Lift {
                 leftLift.setPower(0.7);
                 rightLift.setPower(0.7);
             } else{
-                leftLift.setPower(0);
-                rightLift.setPower(0);
+                leftLift.setPower(myOpMode.gamepad2.right_stick_y);
+                rightLift.setPower(myOpMode.gamepad2.right_stick_y);
             }
         }else if(liftMode == LiftMode.HIGH_CHAMBER) {
             liftToPositionPIDClass(EXT_HIGH_CHAMBER);
