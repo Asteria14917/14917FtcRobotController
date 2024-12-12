@@ -31,7 +31,7 @@ public class Meet2Auto extends LinearOpMode {
         DRIVE_TO_START,
         LIFT,
         DRIVE_FORWARD_TWO,
-        IDLE
+        GET_SAMPLE, GO_TO_BUCKET, DUMP, IDLE
     }
 
     // We define the current state we're on
@@ -80,9 +80,9 @@ public class Meet2Auto extends LinearOpMode {
                     robot.scoring.claw.setPosition(Scoring.CLAW_CLOSED);
                     robot.lift.liftMode = Lift.LiftMode.HIGH_CHAMBER;
                     robot.scoring.clawPivot.setPosition(Scoring.WRIST_MID);
-                    if(timer.seconds() > 2) {
+                    if(timer.seconds() > 0.5) {
                      currentState = State.DRIVE_FORWARD;
-                     robot.drivetrain.setTargetPose(new Pose2D(DistanceUnit.INCH, 24, 3, AngleUnit.DEGREES, 0));
+                     robot.drivetrain.setTargetPose(new Pose2D(DistanceUnit.INCH, 26, 3, AngleUnit.DEGREES, 0));
                     timer.reset();
                     }
                     break;
