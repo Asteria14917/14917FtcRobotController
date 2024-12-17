@@ -96,6 +96,10 @@ public class Drivetrain {
         targetReached = false;
     }
 
+    public void driveToTarget(Pose2D newTarget){
+        targetPose = newTarget;
+    }
+
     public double angleWrap(double degrees) {
 
         while (degrees > 180) {

@@ -92,7 +92,7 @@ public class PinPointLocalizer {
         odo.bulkUpdate();
         pos = odo.getPosition();
 
-        String data = String.format(Locale.US, "{X: %.3f, Y: %.3f, H: %.3f}", pos.getX(DistanceUnit.MM), pos.getY(DistanceUnit.MM), pos.getHeading(AngleUnit.DEGREES));
+        String data = String.format(Locale.US, "{X: %.3f, Y: %.3f, H: %.3f}", pos.getX(DistanceUnit.INCH), pos.getY(DistanceUnit.INCH), pos.getHeading(AngleUnit.DEGREES));
         odo.updateDashboard();
         myOpMode.telemetry.addData("Position", data);
     }

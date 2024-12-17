@@ -12,7 +12,7 @@ import org.firstinspires.ftc.teamcode.RobotHardware;
 
 @Autonomous(name="TestAuto", group="Linear OpMode")
 @Config
-public class TestAuto extends LinearOpMode {
+public class TestAuto_Sample extends LinearOpMode {
 
     RobotHardware robot;
 
@@ -22,24 +22,28 @@ public class TestAuto extends LinearOpMode {
     // This is essentially just defines the possible steps our program will take
     //TODO Update states to reflect flow of robot actions
     enum State {
-        DRIVE_TO_TARGET,
-        IDLE_ONE,
-        DRIVE_TO_START,
-        IDLE_TWO
+        DRIVE_TO_BASKET,
+        SCORE_ONE,
+        DRIVE_TO_SAMPLE,
+        IDLE,
     }
 
     // We define the current state we're on
     // Default to IDLE
-    State currentState = State.DRIVE_TO_TARGET;
+    State currentState = State.DRIVE_TO_BASKET;
 
     // Define our start pose
      Pose2D startPose = new Pose2D(DistanceUnit.INCH, 0,0, AngleUnit.DEGREES,0);
 
     // Define our target
-    public static double targetX = 24;
-    public static double targetY = 0;
-    public static double targetHeading = 25;
-    Pose2D targetPose = new Pose2D(DistanceUnit.INCH, targetX,targetY, AngleUnit.DEGREES, targetHeading);
+    public static double basketX = 3;
+    public static double basketY = 24;
+    public static double basketHeading = -45;
+    Pose2D targetPose = new Pose2D(DistanceUnit.INCH, basketX,basketY, AngleUnit.DEGREES, basketHeading);
+
+    public static double sampleX = 24;
+    public static double sampleY = 16;
+    public static double sampleHeading = 0;
 
     @Override
     public void runOpMode() {
@@ -63,34 +67,32 @@ public class TestAuto extends LinearOpMode {
         telemetry.addData("Status", "Waiting for Start");
         telemetry.update();
         waitForStart();
-
+        timer.reset();
         // run until the end of the match (driver presses STOP)
         while (opModeIsActive() && !isStopRequested()) {
             switch (currentState){
-                case DRIVE_TO_TARGET:
-                    robot.drivetrain.driveToTarget(new Pose2D (DistanceUnit.INCH, targetX, targetY, AngleUnit.DEGREES,targetHeading));
+                case DRIVE_TO_BASKET:
+                    robot.drivetrain.driveToTarget(new Pose2D (DistanceUnit.INCH, basketX, basketY, AngleUnit.DEGREES,basketHeading));
                     //put condition for switch at the beginning, condition can be based on time or completion of a task
-                    if(robot.drivetrain.targetReached){
-                        currentState = State.IDLE_ONE;
+                    if(robot.drivetrain.targetReached||timer.seconds()>2){
+                        currentState = State.SCORE_ONE;
                         timer.reset();
                     }
                     break;
-                case IDLE_ONE:
+                case SCORE_ONE:
                     if(timer.seconds() > 2.0){
-                        currentState = State.DRIVE_TO_START;
+                        currentState = State.DRIVE_TO_SAMPLE;
                     }
                     break;
-                case DRIVE_TO_START:
-                    robot.drivetrain.driveToTarget(startPose);
+                case DRIVE_TO_SAMPLE:
+                    robot.drivetrain.driveToTarget(new Pose2D (DistanceUnit.INCH, sampleX, sampleY, AngleUnit.DEGREES,sampleHeading));
                     if(robot.drivetrain.targetReached){
-                        currentState = State.IDLE_TWO;
+                        currentState = State.IDLE;
                         timer.reset();
                     }
                     break;
-                case IDLE_TWO:
-                    if(timer.seconds() > 2){
-                        currentState = State.DRIVE_TO_TARGET;
-                    }
+                case IDLE:
+
                     break;
             }
 
