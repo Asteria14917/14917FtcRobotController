@@ -26,13 +26,13 @@ public class Lift {
     public static double LIFT_KP = 0.005;
     public static double LIFT_KI = 0.0;
     public static double LIFT_KD = 0.0;
-    public static double LIFT_MAX_OUT = 0.8;
+    public static double LIFT_MAX_OUT = 0.9;
 
     //lift constants
-    public static int EXT_HIGH_BASKET= 2500;
+    public static int EXT_HIGH_BASKET= 4000;
     public static int EXT_RETRACTED = 0;
     //lift for auto
-    public static int EXT_HIGH_CHAMBER = 1800;
+    public static int EXT_HIGH_CHAMBER = 730;
     public static int EXT_AUTO_2 = 1800;
     public static int EXT_LOW_BASKET = 1180;
     public static final double LIFT_SPEED = 0.5;
@@ -114,7 +114,7 @@ public class Lift {
         }else if(myOpMode.gamepad2.x){
             liftMode = LiftMode.HIGH_CHAMBER;
         }else if(myOpMode.gamepad2.b){
-            liftMode = LiftMode.LOW_BASKET;
+            liftMode = LiftMode.RETRACTED;
         }else if(myOpMode.gamepad2.a){
             liftMode = LiftMode.RETRACTED;
         }

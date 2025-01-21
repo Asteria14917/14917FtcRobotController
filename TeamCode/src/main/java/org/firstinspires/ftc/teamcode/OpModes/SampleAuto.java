@@ -12,19 +12,7 @@ import org.firstinspires.ftc.teamcode.RobotHardware;
 import org.firstinspires.ftc.teamcode.Subsystems.Lift;
 import org.firstinspires.ftc.teamcode.Subsystems.Scoring;
 
-import com.acmerobotics.dashboard.config.Config;
-import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
-import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
-import com.qualcomm.robotcore.util.ElapsedTime;
-
-import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
-import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
-import org.firstinspires.ftc.robotcore.external.navigation.Pose2D;
-import org.firstinspires.ftc.teamcode.RobotHardware;
-import org.firstinspires.ftc.teamcode.Subsystems.Lift;
-import org.firstinspires.ftc.teamcode.Subsystems.Scoring;
-
-    @Autonomous(name="SampleAuto", group="Linear OpMode")
+@Autonomous(name="SampleAuto", group="Linear OpMode")
     @Config
     public class SampleAuto extends LinearOpMode {
 
@@ -98,7 +86,7 @@ import org.firstinspires.ftc.teamcode.Subsystems.Scoring;
                     case GET_SAMPLE:
                         robot.scoring.pivotMode = Scoring.PivotMode.PIVOT_SUBMERSIBLE;
                         robot.lift.liftMode = Lift.LiftMode.RETRACTED;
-                        robot.scoring.clawPivot.setPosition(Scoring.WRIST_IN);
+                        //robot.scoring.clawPivot.setPosition(Scoring.WRIST_IN);
                         //put condition for switch at the beginning, condition can be based on time or completion of a task
                         if(timer.seconds() > 2){
                             robot.scoring.claw.setPosition(Scoring.CLAW_CLOSED);
@@ -110,7 +98,7 @@ import org.firstinspires.ftc.teamcode.Subsystems.Scoring;
                     case GO_TO_BUCKET:
                         robot.scoring.pivotMode = Scoring.PivotMode.PIVOT_HIGH_BASKET;
                         robot.lift.liftMode = Lift.LiftMode.HIGH_BASKET;
-                        robot.scoring.clawPivot.setPosition(Scoring.WRIST_OUT);
+                        robot.scoring.clawPivot.setPosition(Scoring.WRIST_MID);
                         robot.scoring.claw.setPosition(Scoring.CLAW_OPEN);
                         if(robot.drivetrain.targetReached || timer.seconds() > 3) {
                             currentState = org.firstinspires.ftc.teamcode.OpModes.SampleAuto.State.IDLE;
@@ -127,7 +115,7 @@ import org.firstinspires.ftc.teamcode.Subsystems.Scoring;
                         }
                         break;
                     case DRIVE_TO_START:
-                        robot.scoring.clawPivot.setPosition(Scoring.WRIST_MID);
+                        robot.scoring.clawPivot.setPosition(Scoring.WRIST_OUT);
                         robot.scoring.claw.setPosition(Scoring.CLAW_CLOSED);
                         if(timer.seconds() > 3){
                             robot.lift.liftMode = Lift.LiftMode.HIGH_CHAMBER;

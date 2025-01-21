@@ -18,14 +18,16 @@ import com.qualcomm.robotcore.hardware.Servo;
         public static final double CLAW_OPEN = 0.3;
         public static final double CLAW_CLOSED = 0.5;
         public static final int PIVOT_HIGH_BASKET = 1774;
-        public static final int PIVOT_LOW_BASKET= 0;
+        public static final int PIVOT_ZERO= 0;
         public static final int PIVOT_SUBMERSIBLE = -1050;
         public static final double PIVOT_SPEED = 0.7;
-        public static final double WRIST_OUT = 0.7;
+        public static final int PIVOT_OBSERVATION_ZONE = -364;
         public static final double WRIST_IN = 0.05;
-        public static final double WRIST_MID = 0.35;
+        public static final double WRIST_MID = 0.6;
+        public static final double WRIST_OUT = 0.75;
+        //mid is low, out is middle, in is high
         //for second specimen scoring
-        public static double WRIST_AUTO = 0.2;
+        public static double WRIST_AUTO = 0.5;
         public static final int PIVOT_LOW_LIMIT = -1200;
         public static final int PIVOT_HIGH_LIMIT = 1800;
 
@@ -35,7 +37,8 @@ import com.qualcomm.robotcore.hardware.Servo;
         public enum PivotMode {
             PIVOT_SUBMERSIBLE,
             PIVOT_HIGH_BASKET,
-            MANUAL
+            PIVOT_HIGH_CHAMBER,
+            OBSERVATION_ZONE, MANUAL
         }
 
         public PivotMode pivotMode = PivotMode.MANUAL;
@@ -81,6 +84,10 @@ import com.qualcomm.robotcore.hardware.Servo;
                 pivotToTargetPosition(PIVOT_SPEED, PIVOT_SUBMERSIBLE);
             } else if (pivotMode == PivotMode.PIVOT_HIGH_BASKET) {
                 pivotToTargetPosition(PIVOT_SPEED, PIVOT_HIGH_BASKET);
+            } else if (pivotMode == PivotMode.PIVOT_HIGH_CHAMBER) {
+                pivotToTargetPosition(PIVOT_SPEED, PIVOT_ZERO);
+            }else if (pivotMode == PivotMode.OBSERVATION_ZONE) {
+                pivotToTargetPosition(PIVOT_SPEED, PIVOT_OBSERVATION_ZONE);
             }
 
             if(Math.abs(myOpMode.gamepad2.left_stick_y) > 0.1){
@@ -90,6 +97,10 @@ import com.qualcomm.robotcore.hardware.Servo;
                 pivotMode = PivotMode.PIVOT_HIGH_BASKET;
             }else if(myOpMode.gamepad2.a){
                 pivotMode = PivotMode.PIVOT_SUBMERSIBLE;
+            }else if(myOpMode.gamepad2.x){
+                pivotMode = PivotMode.PIVOT_HIGH_CHAMBER;
+            }else if(myOpMode.gamepad2.b){
+                pivotMode = PivotMode.OBSERVATION_ZONE;
             }
             //set positions
             if (myOpMode.gamepad2.left_bumper) {
@@ -108,15 +119,18 @@ import com.qualcomm.robotcore.hardware.Servo;
             */
 
             if(myOpMode.gamepad2.dpad_up){
-                clawPivot.setPosition(WRIST_OUT);
-            }
-
-            if(myOpMode.gamepad2.dpad_down){
                 clawPivot.setPosition(WRIST_IN);
             }
 
             if(myOpMode.gamepad2.dpad_left){
                 clawPivot.setPosition(WRIST_MID);
+            }
+
+             if(myOpMode.gamepad2.dpad_right) {           
+                 clawPivot.setPosition(WRIST_AUTO);       
+             }
+             if(myOpMode.gamepad2.dpad_down){
+                clawPivot.setPosition(WRIST_OUT);
             }
         }
         public void update() {
@@ -165,16 +179,20 @@ import com.qualcomm.robotcore.hardware.Servo;
             }
             */
 
-            if(myOpMode.gamepad2.dpad_up){
-                clawPivot.setPosition(WRIST_OUT);
+            if(myOpMode.gamepad2.dpad_left){
+                clawPivot.setPosition(WRIST_MID);
             }
 
-            if(myOpMode.gamepad2.dpad_down){
+            if(myOpMode.gamepad2.dpad_right) {
+                clawPivot.setPosition(WRIST_AUTO);
+            }
+
+            if(myOpMode.gamepad2.dpad_up){
                 clawPivot.setPosition(WRIST_IN);
             }
 
-            if(myOpMode.gamepad2.dpad_left){
-                clawPivot.setPosition(WRIST_MID);
+            if(myOpMode.gamepad2.dpad_down){
+                clawPivot.setPosition(WRIST_OUT);
             }
         }
         public void pivotToTargetPosition(double speed,

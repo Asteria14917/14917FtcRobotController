@@ -12,9 +12,9 @@ import org.firstinspires.ftc.teamcode.RobotHardware;
 import org.firstinspires.ftc.teamcode.Subsystems.Lift;
 import org.firstinspires.ftc.teamcode.Subsystems.Scoring;
 
-@Autonomous(name="Meet2Auto", group="Linear OpMode")
+@Autonomous(name="FourSpecimenAuto", group="Linear OpMode")
 @Config
-public class Meet2Auto extends LinearOpMode {
+public class FourSpecimenAuto extends LinearOpMode {
 
     RobotHardware robot;
 
@@ -27,6 +27,8 @@ public class Meet2Auto extends LinearOpMode {
         LIFT_OUT,
         DRIVE_FORWARD,
         DRIVE_TO_SPECIMEN,
+        PASS_SPECIMEN,
+        FORWARD,
         GET_SPECIMEN,
         DRIVE_TO_START,
         LIFT,
@@ -57,6 +59,7 @@ public class Meet2Auto extends LinearOpMode {
         //calling init function
         robot.init();
         robot.scoring.claw.setPosition(Scoring.CLAW_CLOSED);
+        robot.scoring.clawPivot.setPosition(Scoring.WRIST_IN);
 
         //TODO Pass starting pose to localizer
         //for Gobilda it looks like this
@@ -70,6 +73,7 @@ public class Meet2Auto extends LinearOpMode {
         // Wait for the game to start (driver presses START)
         telemetry.addData("Status", "Waiting for Start");
         telemetry.update();
+        score = 0;
         waitForStart();
         timer.reset();
 
@@ -79,7 +83,7 @@ public class Meet2Auto extends LinearOpMode {
                 case LIFT_OUT:
                     robot.scoring.claw.setPosition(Scoring.CLAW_CLOSED);
                     robot.lift.liftMode = Lift.LiftMode.HIGH_CHAMBER;
-                    robot.scoring.clawPivot.setPosition(Scoring.WRIST_OUT);
+                    robot.scoring.clawPivot.setPosition(Scoring.WRIST_AUTO);
                     if(timer.seconds() > 0.5) {
                      currentState = State.DRIVE_FORWARD;
                      robot.drivetrain.setTargetPose(new Pose2D(DistanceUnit.INCH, 26, 3, AngleUnit.DEGREES, 0));
@@ -87,40 +91,67 @@ public class Meet2Auto extends LinearOpMode {
                     }
                     break;
                 case DRIVE_FORWARD:
-                    if(timer.seconds() > 2){
+                    if(timer.seconds() > 1){
+                        //2
                         robot.scoring.claw.setPosition(Scoring.CLAW_OPEN);
                         robot.lift.liftMode = Lift.LiftMode.RETRACTED;
                     }
                     //put condition for switch at the beginning, condition can be based on time or completion of a task
-                    if(timer.seconds() > 2.5){
+                    if(timer.seconds() > 1.5 && score == 0){
+                        currentState = State.PASS_SPECIMEN;
+                        robot.drivetrain.setTargetPose(new Pose2D(DistanceUnit.INCH, 22, -24, AngleUnit.DEGREES, 0));
+                        timer.reset();
+                    } else if(timer.seconds() > 1.5 && score > 0){
+                        //2.5
                         currentState = State.DRIVE_TO_SPECIMEN;
-                        robot.drivetrain.setTargetPose(new Pose2D(DistanceUnit.INCH, 5.5,-30, AngleUnit.DEGREES, -180));
+                        robot.drivetrain.setTargetPose(new Pose2D(DistanceUnit.INCH, 5,-30, AngleUnit.DEGREES, -180));
+                        timer.reset();
+                    }
+                    break;
+                case PASS_SPECIMEN:
+                    if(timer.seconds() < 1){
+                        robot.drivetrain.driveToTarget(new Pose2D(DistanceUnit.INCH, 22, -24, AngleUnit.DEGREES, 0));
+                    }else if(timer.seconds() < 2){
+                        robot.drivetrain.driveToTarget(new Pose2D(DistanceUnit.INCH, 50, -30, AngleUnit.DEGREES, 0));
+                    }else if(timer.seconds() < 2.5){
+                        robot.drivetrain.driveToTarget(new Pose2D(DistanceUnit.INCH, 50, -40, AngleUnit.DEGREES, 0));
+                    }else if(timer.seconds() < 3.5){
+                        robot.drivetrain.driveToTarget(new Pose2D(DistanceUnit.INCH, 6, -40, AngleUnit.DEGREES, 0));
+                    }else if(timer.seconds() < 4.5){
+                        robot.drivetrain.setTargetPose(new Pose2D(DistanceUnit.INCH, 6, -30, AngleUnit.DEGREES, -180));
+                        currentState = State.DRIVE_TO_SPECIMEN;
                         timer.reset();
                     }
                     break;
                 case DRIVE_TO_SPECIMEN:
-                    robot.scoring.clawPivot.setPosition(Scoring.WRIST_AUTO);
-                    if(robot.drivetrain.targetReached || timer.seconds() > 2) {
+                    robot.scoring.clawPivot.setPosition(Scoring.WRIST_OUT);
+                    if(timer.seconds() < 1){
+                        robot.drivetrain.driveToTarget(new Pose2D(DistanceUnit.INCH, 6, -30, AngleUnit.DEGREES, -180));
+                    }else if(timer.seconds() < 2){
+                        robot.drivetrain.driveToTarget(new Pose2D(DistanceUnit.INCH, 3, -30, AngleUnit.DEGREES, -180));
+                    }else{
                         currentState = State.GET_SPECIMEN;
                         timer.reset();
                     }
                     break;
                 case GET_SPECIMEN:
-                    robot.scoring.claw.setPosition(Scoring.CLAW_CLOSED);
+                    if(timer.seconds() > .5){
+                        robot.scoring.claw.setPosition(Scoring.CLAW_CLOSED);
+                    }
                     //306
-                    if(timer.seconds() > 1.0){
+                    if(timer.seconds() > 1){
                         currentState = State.DRIVE_TO_START;
                         robot.drivetrain.setTargetPose(new Pose2D(DistanceUnit.INCH, 0,3, AngleUnit.DEGREES, 0));
                         timer.reset();
                     }
                     break;
                 case DRIVE_TO_START:
-                    robot.scoring.clawPivot.setPosition(Scoring.WRIST_OUT);
+                    robot.scoring.clawPivot.setPosition(Scoring.WRIST_AUTO);
                     robot.scoring.claw.setPosition(Scoring.CLAW_CLOSED);
-                    if(timer.seconds() > 3){
+                    if(timer.seconds() > 1.5){
                         robot.lift.liftMode = Lift.LiftMode.HIGH_CHAMBER;
                     }
-                    if(robot.drivetrain.targetReached || timer.seconds() > 3.0){
+                    if(robot.drivetrain.targetReached || timer.seconds() > 2.3){
                         currentState = State.DRIVE_FORWARD;
                         robot.drivetrain.setTargetPose(new Pose2D(DistanceUnit.INCH, 24, 8+score*2, AngleUnit.DEGREES, 0));
                         timer.reset();
