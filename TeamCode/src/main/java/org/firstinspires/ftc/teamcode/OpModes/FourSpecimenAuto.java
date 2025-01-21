@@ -86,7 +86,7 @@ public class FourSpecimenAuto extends LinearOpMode {
                     robot.scoring.clawPivot.setPosition(Scoring.WRIST_AUTO);
                     if(timer.seconds() > 0.5) {
                      currentState = State.DRIVE_FORWARD;
-                     robot.drivetrain.setTargetPose(new Pose2D(DistanceUnit.INCH, 26, 3, AngleUnit.DEGREES, 0));
+                     robot.drivetrain.setTargetPose(new Pose2D(DistanceUnit.INCH, 28, 3, AngleUnit.DEGREES, 0));
                     timer.reset();
                     }
                     break;
@@ -104,7 +104,7 @@ public class FourSpecimenAuto extends LinearOpMode {
                     } else if(timer.seconds() > 1.5 && score > 0){
                         //2.5
                         currentState = State.DRIVE_TO_SPECIMEN;
-                        robot.drivetrain.setTargetPose(new Pose2D(DistanceUnit.INCH, 5,-30, AngleUnit.DEGREES, -180));
+                        robot.drivetrain.setTargetPose(new Pose2D(DistanceUnit.INCH, 3,-30, AngleUnit.DEGREES, -180));
                         timer.reset();
                     }
                     break;
@@ -125,10 +125,10 @@ public class FourSpecimenAuto extends LinearOpMode {
                     break;
                 case DRIVE_TO_SPECIMEN:
                     robot.scoring.clawPivot.setPosition(Scoring.WRIST_OUT);
-                    if(timer.seconds() < 1){
-                        robot.drivetrain.driveToTarget(new Pose2D(DistanceUnit.INCH, 6, -30, AngleUnit.DEGREES, -180));
-                    }else if(timer.seconds() < 2){
-                        robot.drivetrain.driveToTarget(new Pose2D(DistanceUnit.INCH, 3, -30, AngleUnit.DEGREES, -180));
+                    if(timer.seconds() < 2){
+                        robot.drivetrain.driveToTarget(new Pose2D(DistanceUnit.INCH, 8, -30, AngleUnit.DEGREES, -180));
+                    }else if(timer.seconds() < 3){
+                        robot.drivetrain.driveToTarget(new Pose2D(DistanceUnit.INCH, 1, -30, AngleUnit.DEGREES, -180));
                     }else{
                         currentState = State.GET_SPECIMEN;
                         timer.reset();
@@ -153,7 +153,7 @@ public class FourSpecimenAuto extends LinearOpMode {
                     }
                     if(robot.drivetrain.targetReached || timer.seconds() > 2.3){
                         currentState = State.DRIVE_FORWARD;
-                        robot.drivetrain.setTargetPose(new Pose2D(DistanceUnit.INCH, 24, 8+score*2, AngleUnit.DEGREES, 0));
+                        robot.drivetrain.setTargetPose(new Pose2D(DistanceUnit.INCH, 28, 8+score*2, AngleUnit.DEGREES, 0));
                         timer.reset();
                         if(score < 2){
                             score++;

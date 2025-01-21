@@ -24,7 +24,7 @@ import com.qualcomm.robotcore.hardware.Servo;
         public static final int PIVOT_OBSERVATION_ZONE = -364;
         public static final double WRIST_IN = 0.05;
         public static final double WRIST_MID = 0.6;
-        public static final double WRIST_OUT = 0.75;
+        public static final double WRIST_OUT = 0.7;
         //mid is low, out is middle, in is high
         //for second specimen scoring
         public static double WRIST_AUTO = 0.5;

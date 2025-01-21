@@ -32,7 +32,7 @@ public class Lift {
     public static int EXT_HIGH_BASKET= 4000;
     public static int EXT_RETRACTED = 0;
     //lift for auto
-    public static int EXT_HIGH_CHAMBER = 730;
+    public static int EXT_HIGH_CHAMBER = 1000;
     public static int EXT_AUTO_2 = 1800;
     public static int EXT_LOW_BASKET = 1180;
     public static final double LIFT_SPEED = 0.5;
