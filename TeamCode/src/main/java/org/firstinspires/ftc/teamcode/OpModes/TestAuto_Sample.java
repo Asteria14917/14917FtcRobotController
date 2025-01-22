@@ -9,6 +9,8 @@ import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.Pose2D;
 import org.firstinspires.ftc.teamcode.RobotHardware;
+import org.firstinspires.ftc.teamcode.Subsystems.Lift;
+import org.firstinspires.ftc.teamcode.Subsystems.Scoring;
 
 @Autonomous(name="TestAuto", group="Linear OpMode")
 @Config
@@ -37,13 +39,14 @@ public class TestAuto_Sample extends LinearOpMode {
 
     // Define our target
     public static double basketX = 3;
-    public static double basketY = 24;
-    public static double basketHeading = -45;
+    public static double basketY = 19;
+    public static double basketHeading = 145;
     Pose2D targetPose = new Pose2D(DistanceUnit.INCH, basketX,basketY, AngleUnit.DEGREES, basketHeading);
 
     public static double sampleX = 24;
     public static double sampleY = 16;
     public static double sampleHeading = 0;
+    public static int scoreTwo = 0;
 
     @Override
     public void runOpMode() {
@@ -53,6 +56,7 @@ public class TestAuto_Sample extends LinearOpMode {
 
         //calling init function
         robot.init();
+        robot.scoring.claw.setPosition(Scoring.CLAW_CLOSED);
 
         //TODO Pass starting pose to localizer
         //for Gobilda it looks like this
@@ -72,7 +76,7 @@ public class TestAuto_Sample extends LinearOpMode {
         while (opModeIsActive() && !isStopRequested()) {
             switch (currentState){
                 case DRIVE_TO_BASKET:
-                    robot.drivetrain.driveToTarget(new Pose2D (DistanceUnit.INCH, basketX, basketY, AngleUnit.DEGREES,basketHeading));
+                    robot.drivetrain.driveToTarget(new Pose2D (DistanceUnit.INCH, basketX, basketY, AngleUnit.DEGREES, basketHeading));
                     //put condition for switch at the beginning, condition can be based on time or completion of a task
                     if(robot.drivetrain.targetReached||timer.seconds()>2){
                         currentState = State.SCORE_ONE;
@@ -80,19 +84,23 @@ public class TestAuto_Sample extends LinearOpMode {
                     }
                     break;
                 case SCORE_ONE:
+                    robot.lift.liftMode = Lift.LiftMode.HIGH_BASKET;
+                    robot.scoring.pivotMode = Scoring.PivotMode.PIVOT_HIGH_BASKET;
                     if(timer.seconds() > 2.0){
+                        robot.scoring.claw.setPosition(Scoring.CLAW_OPEN);
                         currentState = State.DRIVE_TO_SAMPLE;
                     }
                     break;
                 case DRIVE_TO_SAMPLE:
                     robot.drivetrain.driveToTarget(new Pose2D (DistanceUnit.INCH, sampleX, sampleY, AngleUnit.DEGREES,sampleHeading));
-                    if(robot.drivetrain.targetReached){
-                        currentState = State.IDLE;
+                    if(scoreTwo < 2){
+                        currentState = State.DRIVE_TO_BASKET;
                         timer.reset();
+                    }else{
+                        currentState = State.IDLE;
                     }
                     break;
                 case IDLE:
-
                     break;
             }
 

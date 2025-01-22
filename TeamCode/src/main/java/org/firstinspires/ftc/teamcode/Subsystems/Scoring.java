@@ -17,7 +17,7 @@ import com.qualcomm.robotcore.hardware.Servo;
         // Define Drive constants.  Make them public so they CAN be used by the calling OpMode
         public static final double CLAW_OPEN = 0.3;
         public static final double CLAW_CLOSED = 0.5;
-        public static final int PIVOT_HIGH_BASKET = 1774;
+        public static final int PIVOT_HIGH_BASKET = 500;
         public static final int PIVOT_ZERO= 0;
         public static final int PIVOT_SUBMERSIBLE = -1050;
         public static final double PIVOT_SPEED = 0.7;
@@ -99,8 +99,10 @@ import com.qualcomm.robotcore.hardware.Servo;
                 pivotMode = PivotMode.PIVOT_SUBMERSIBLE;
             }else if(myOpMode.gamepad2.x){
                 pivotMode = PivotMode.PIVOT_HIGH_CHAMBER;
+                clawPivot.setPosition(WRIST_AUTO);
             }else if(myOpMode.gamepad2.b){
-                pivotMode = PivotMode.OBSERVATION_ZONE;
+                pivotMode = PivotMode.PIVOT_HIGH_CHAMBER;
+                clawPivot.setPosition(WRIST_OUT);
             }
             //set positions
             if (myOpMode.gamepad2.left_bumper) {
