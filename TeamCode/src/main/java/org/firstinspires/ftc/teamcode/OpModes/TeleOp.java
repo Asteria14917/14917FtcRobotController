@@ -22,8 +22,8 @@ public class TeleOp extends LinearOpMode {
         scoring = new Scoring(this);
 
         drivetrain.init();
-        lift.init();
         scoring.init();
+        lift.init(scoring);
 
         // Wait for the game to start (driver presses START)
         telemetry.addData("Status", "Initialized");

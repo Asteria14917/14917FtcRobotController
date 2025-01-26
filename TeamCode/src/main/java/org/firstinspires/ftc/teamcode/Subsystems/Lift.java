@@ -21,6 +21,7 @@ public class Lift {
     //In Declarations
     PIDController rightLiftPIDController;
     public PIDController leftLiftPIDController;
+    public Scoring scoring;
 
     //Defining Variable Constants
     public static double LIFT_KP = 0.005;
@@ -31,10 +32,11 @@ public class Lift {
     //lift constants
     public static int EXT_HIGH_BASKET= 4000;
     public static int EXT_RETRACTED = 0;
+    public static int EXT_LIMIT = 1800;
     //lift for auto
-    public static int EXT_HIGH_CHAMBER = 1000;
+    public static int EXT_HIGH_CHAMBER = 1200;
     public static int EXT_AUTO_2 = 1800;
-    public static int EXT_LOW_BASKET = 1180;
+    public static int EXT_LOW_BASKET = 1170;
     public static final double LIFT_SPEED = 0.5;
 
     //if the subsystem has explicit states, it can be helpful to use an enum to define them
@@ -54,8 +56,8 @@ public class Lift {
         myOpMode = opmode;
     }
 
-    public void init() {
-
+    public void init(Scoring scoringIN) {
+        scoring = scoringIN;
         leftLiftPIDController = new PIDController(LIFT_KP,LIFT_KI,LIFT_KD,LIFT_MAX_OUT);
         rightLiftPIDController = new PIDController(LIFT_KP,LIFT_KI,LIFT_KD,LIFT_MAX_OUT);
 
@@ -88,10 +90,14 @@ public class Lift {
             if (myOpMode.gamepad2.left_trigger > 0.1 && leftLift.getCurrentPosition() > 0) {
                 leftLift.setPower(-0.3);
                 rightLift.setPower(-0.3);
-            } else if (myOpMode.gamepad2.right_trigger > 0.1 && leftLift.getCurrentPosition() < EXT_HIGH_BASKET) {
+            } else if (scoring.pivot.getCurrentPosition() > 0 && myOpMode.gamepad2.right_trigger > 0.1 && leftLift.getCurrentPosition() < EXT_HIGH_BASKET) {
                 leftLift.setPower(0.7);
                 rightLift.setPower(0.7);
-            } else{
+            }else if (scoring.pivot.getCurrentPosition() < 0 && myOpMode.gamepad2.right_trigger > 0.1 && leftLift.getCurrentPosition() < EXT_LIMIT) {
+                leftLift.setPower(0.7);
+                rightLift.setPower(0.7);
+            }
+                else{
                 leftLift.setPower(myOpMode.gamepad2.right_stick_y);
                 rightLift.setPower(myOpMode.gamepad2.right_stick_y);
             }

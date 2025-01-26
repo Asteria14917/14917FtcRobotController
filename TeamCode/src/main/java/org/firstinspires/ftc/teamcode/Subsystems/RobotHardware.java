@@ -29,7 +29,7 @@ public class RobotHardware{
 
             drivetrain.init();
             scoring.init();
-            lift.init();
+            lift.init(scoring);
 
             myOpMode.telemetry.addData(">", "Hardware Initialized");
             myOpMode.telemetry.update();

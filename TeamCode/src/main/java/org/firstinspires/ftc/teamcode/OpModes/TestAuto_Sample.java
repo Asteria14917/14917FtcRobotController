@@ -39,8 +39,8 @@ public class TestAuto_Sample extends LinearOpMode {
 
     // Define our target
     public static double basketX = 3;
-    public static double basketY = 19;
-    public static double basketHeading = 145;
+    public static double basketY = 15;
+    public static double basketHeading = 100;
     Pose2D targetPose = new Pose2D(DistanceUnit.INCH, basketX,basketY, AngleUnit.DEGREES, basketHeading);
 
     public static double sampleX = 24;
@@ -84,18 +84,30 @@ public class TestAuto_Sample extends LinearOpMode {
                     }
                     break;
                 case SCORE_ONE:
-                    robot.lift.liftMode = Lift.LiftMode.HIGH_BASKET;
                     robot.scoring.pivotMode = Scoring.PivotMode.PIVOT_HIGH_BASKET;
-                    if(timer.seconds() > 2.0){
+                    if(timer.seconds() > 1) {
+                        robot.lift.liftMode = Lift.LiftMode.HIGH_BASKET;
+                    }
+                    robot.scoring.clawPivot.setPosition(Scoring.WRIST_AUTO);
+                    if(timer.seconds() > 4) {
                         robot.scoring.claw.setPosition(Scoring.CLAW_OPEN);
+                        robot.scoring.clawPivot.setPosition(Scoring.WRIST_IN);
                         currentState = State.DRIVE_TO_SAMPLE;
+                        timer.reset();
                     }
                     break;
                 case DRIVE_TO_SAMPLE:
+                    robot.lift.liftMode = Lift.LiftMode.RETRACTED;
+                    robot.scoring.pivotMode = Scoring.PivotMode.OBSERVATION_ZONE;
                     robot.drivetrain.driveToTarget(new Pose2D (DistanceUnit.INCH, sampleX, sampleY, AngleUnit.DEGREES,sampleHeading));
-                    if(scoreTwo < 2){
+                    robot.scoring.clawPivot.setPosition(Scoring.WRIST_MID);
+                    if(timer.seconds() > 2){
+                        robot.scoring.claw.setPosition(Scoring.CLAW_CLOSED);
+                    }
+                    if(scoreTwo > 3){
                         currentState = State.DRIVE_TO_BASKET;
                         timer.reset();
+                        scoreTwo++;
                     }else{
                         currentState = State.IDLE;
                     }
