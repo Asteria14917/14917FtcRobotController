@@ -34,7 +34,7 @@ public class Lift {
     public static int EXT_RETRACTED = 0;
     public static int EXT_LIMIT = 1800;
     //lift for auto
-    public static int EXT_HIGH_CHAMBER = 1100;
+    public static int EXT_HIGH_CHAMBER = 1000;
     public static int EXT_AUTO_2 = 1800;
     public static int EXT_LOW_BASKET = 1170;
     public static final double LIFT_SPEED = 0.5;
@@ -47,7 +47,8 @@ public class Lift {
         HIGH_CHAMBER,
         LOW_CHAMBER,
         EXT_AUTO_2,
-        RETRACTED
+        RETRACTED,
+        ASCENT,
     }
 
     public LiftMode liftMode = LiftMode.MANUAL;
@@ -109,7 +110,9 @@ public class Lift {
             liftToPositionPIDClass(EXT_HIGH_BASKET);
         }else if(liftMode == LiftMode.LOW_BASKET){
             liftToPositionPIDClass(EXT_LOW_BASKET);
+        }else if(liftMode == LiftMode.ASCENT){
         }
+
         //setting lift state
         if(Math.abs(myOpMode.gamepad2.left_trigger) > 0.1 || Math.abs(myOpMode.gamepad2.right_trigger) > 0.1){
             liftMode = LiftMode.MANUAL;
