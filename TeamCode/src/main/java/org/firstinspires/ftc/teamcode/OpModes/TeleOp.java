@@ -44,47 +44,46 @@ public class TeleOp extends LinearOpMode {
             lift.teleOp();
             scoring.teleOp();
             telemetry.update();
-            if(gamepad2.y){
+            if (gamepad1.y) {
                 timer.reset();
+                ascending = true;
                 lift.liftMode = Lift.LiftMode.ASCENT;
                 scoring.pivotMode = Scoring.PivotMode.ASCENT;
             }
-            if(ascending){
-                if(timer.seconds()<5){
-                    scoring.pivotToTargetPosition(0.8,-1622);
-                }
-                else if (timer.seconds()<10){
+            if (ascending) {
+                if (timer.seconds() < 1) {
+                    //align angle of stationary hooks
+                    scoring.pivotToTargetPosition(0.8, -1622);
+                } else if (timer.seconds() < 2) {
+                    //align height of stationary hooks
                     lift.liftToPositionPIDClass(150);
-                }
-                else if(timer.seconds()<15){
-                    scoring.pivotToTargetPosition(0.8,-500);
-                }
-                else if (timer.seconds()<20){
-                    lift.liftToPositionPIDClass(2600);
-                }
-                else if (timer.seconds()<25){
-                    scoring.pivotToTargetPosition(0.8, -600);
-                }
-                else if (timer.seconds()<30){
-                    scoring.pivotToTargetPosition(0.8,-700);
-                }
-                else if (timer.seconds()<35){
-                    scoring.pivotToTargetPosition(0.8, 900);
-                }
-                else if (timer.seconds()<40){
-                    scoring.pivotToTargetPosition(0.8, -81);
-                }
-                else if (timer.seconds()<45){
-                    lift.liftToPositionPIDClass(2370);
-                }
-                else if (timer.seconds()<50){
+                    scoring.pivotToTargetPosition(0.8, -1622);
+                } else if (timer.seconds() < 3) {
+                    //attach stationary hooks
+                    scoring.pivotToTargetPosition(0.8, -500);
+                } else if(timer.seconds()< 5){
+                    //extend lift past high bar
+                    lift.liftToPositionPIDClass(3000);
+                } else if (timer.seconds() < 6) {
+                    //pivot down to align lift hooks with high bar
+                    scoring.pivotToTargetPosition(0.8, -800);
+                } else if (timer.seconds()< 8){
+                    //retract lift to hook onto high bar
+                    lift.liftToPositionPIDClass(2000);
+                }else if (timer.seconds() < 10) {
+                    //retract and pivot
                     lift.liftToPositionPIDClass(0);
+                    scoring.pivotToTargetPosition(0.8, 1100);
+                } else if (timer.seconds() < 12) {
+                    //pivot to get wheel over low bar
+                    lift.liftToPositionPIDClass(0);
+                    scoring.pivotToTargetPosition(0.8, -81);
+                } else {
+                    //align robot on high bar
+                    lift.liftToPositionPIDClass(0);
+                    scoring.pivotToTargetPosition(0.8, 400);
                 }
-                else if (timer.seconds()<55){
-                    scoring.pivotToTargetPosition(0.8, 5);
-                }
-                else if (timer.seconds()<60){
-                    scoring.pivotToTargetPosition(0.8, 8);
-                }
+            }
+        }
     }
 }
