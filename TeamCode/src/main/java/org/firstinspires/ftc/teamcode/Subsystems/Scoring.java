@@ -1,6 +1,7 @@
 package org.firstinspires.ftc.teamcode.Subsystems;
 
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
+import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.Servo;
 
@@ -10,26 +11,40 @@ import com.qualcomm.robotcore.hardware.Servo;
 
         //servos
         public Servo claw = null;
-       // public Servo extension = null;
+        public Servo clawRotate = null;
+        public CRServo intakeL = null;
+        public CRServo intakeR = null;
+        public Servo extension = null;
         public Servo clawPivot = null;
         public DcMotor pivot = null;
 
         // Define Drive constants.  Make them public so they CAN be used by the calling OpMode
+
         public static final double CLAW_OPEN = 0.3;
         public static final double CLAW_CLOSED = 0.55;
         public static final int PIVOT_HIGH_BASKET = 600;        public static final int PIVOT_ZERO= 0;
         public static final int PIVOT_SUBMERSIBLE = -1050;
-        public static final double PIVOT_SPEED = 0.7;
+        public static final double PIVOT_SPEED = 0.9;
         public static final int PIVOT_OBSERVATION_ZONE = -1300;
+        public double rotateSetPosition;
+        public static final double CLAW_ROTATE_SPECIMEN = 0;
+        public static final double CLAW_ROTATE_SAMPLE = 0.65;
         //-364
-        public static final double WRIST_IN = 0.05;
+        public static final double WRIST_IN = 0.1;
+        //0.6
         public static final double WRIST_MID = 0.6;
-        public static final double WRIST_OUT = 0.7;
+        public static final double WRIST_OUT = 0.67;
+        public static final double WRIST_INTAKE = 0.3;
+        public static final double WRIST_HOVER = 0.5;
+        public static final double ROTATE_HALF = 0.2;
+        public static final double ROTATE_FULL = 0.55;
+
+
         //mid is low, out is middle, in is high
         //for second specimen scoring
-        public static double WRIST_AUTO = 0.5;
+        public static double WRIST_AUTO = 0.3;
         public static final int PIVOT_LOW_LIMIT = -1200;
-        public static final int PIVOT_HIGH_LIMIT = 900;
+        public static final int PIVOT_HIGH_LIMIT = 1200;
 
         //1774 for high limit
         //-1114 for low limit
@@ -48,13 +63,18 @@ import com.qualcomm.robotcore.hardware.Servo;
         }
 
         public void init() {
+            intakeL = myOpMode.hardwareMap.get(CRServo.class, "intakeL");
+            intakeR = myOpMode.hardwareMap.get(CRServo.class, "intakeR");
+            intakeL.setDirection(CRServo.Direction.FORWARD);
+            intakeR.setDirection(CRServo.Direction.REVERSE);
             claw = myOpMode.hardwareMap.get(Servo.class, "claw");
            // extension = myOpMode.hardwareMap.get(Servo.class, "extension");
             clawPivot = myOpMode.hardwareMap.get(Servo.class, "clawPivot");
+            clawRotate = myOpMode.hardwareMap.get(Servo.class, "clawRotate");
             pivot = myOpMode.hardwareMap.get(DcMotor.class, "pivot");
             pivot.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
             pivot.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-            //claw.setPosition(CLAW_CLOSED);
+            claw.setPosition(CLAW_CLOSED);
             //extension.setPosition(EXTENSION_IN);
             //clawPivot.setPosition(CLAW_UP);
 
@@ -72,14 +92,14 @@ import com.qualcomm.robotcore.hardware.Servo;
             //claw.setPosition(CLAW_CLOSED);
             //clawPivot.setPosition(CLAW_UP);
             //extension.setPosition(extensionPosition);
-            if (pivotMode == PivotMode.MANUAL)
-            {
+            if (pivotMode == PivotMode.MANUAL) {
                 //pivot.getCurrentPosition() > PIVOT_LOW_LIMIT
-                if(-myOpMode.gamepad2.left_stick_y < -.1) {
+                if (-myOpMode.gamepad2.left_stick_y < -.1) {
                     pivot.setPower(-myOpMode.gamepad2.left_stick_y);
-                }else if(pivot.getCurrentPosition() < PIVOT_HIGH_LIMIT && -myOpMode.gamepad2.left_stick_y >.1){
+                } else if (-myOpMode.gamepad2.left_stick_y > .1) {
+                    //pivot.getCurrentPosition() < PIVOT_HIGH_LIMIT &&
                     pivot.setPower(-myOpMode.gamepad2.left_stick_y);
-                }else{
+                } else {
                     pivot.setPower(0);
                 }
             } else if (pivotMode == PivotMode.PIVOT_SUBMERSIBLE) {
@@ -88,57 +108,109 @@ import com.qualcomm.robotcore.hardware.Servo;
                 pivotToTargetPosition(PIVOT_SPEED, PIVOT_HIGH_BASKET);
             } else if (pivotMode == PivotMode.PIVOT_HIGH_CHAMBER) {
                 pivotToTargetPosition(PIVOT_SPEED, PIVOT_ZERO);
-            }else if (pivotMode == PivotMode.OBSERVATION_ZONE) {
+            } else if (pivotMode == PivotMode.OBSERVATION_ZONE) {
                 pivotToTargetPosition(PIVOT_SPEED, PIVOT_OBSERVATION_ZONE);
-            }else if (pivotMode == PivotMode.ASCENT) {
+            } else if (pivotMode == PivotMode.ASCENT) {
             }
 
-            if(Math.abs(myOpMode.gamepad2.left_stick_y) > 0.1){
+            if (Math.abs(myOpMode.gamepad2.left_stick_y) > 0.1) {
                 pivotMode = PivotMode.MANUAL;
                 pivot.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-            }else if(myOpMode.gamepad2.y){
+            } else if (myOpMode.gamepad2.y) {
                 pivotMode = PivotMode.PIVOT_HIGH_BASKET;
             }//else if(myOpMode.gamepad2.a){
-               // pivotMode = PivotMode.PIVOT_SUBMERSIBLE;
+            // pivotMode = PivotMode.PIVOT_SUBMERSIBLE;
             //}
-            else if(myOpMode.gamepad2.x){
+            else if (myOpMode.gamepad2.x) {
                 pivotMode = PivotMode.PIVOT_HIGH_CHAMBER;
                 clawPivot.setPosition(WRIST_AUTO);
-            }else if(myOpMode.gamepad2.b){
+            } else if (myOpMode.gamepad2.b) {
                 pivotMode = PivotMode.PIVOT_HIGH_CHAMBER;
                 clawPivot.setPosition(WRIST_OUT);
             }
-            //set positions
+
+
+            /* //set positions (ACTIVE INTAKE)
+            if (myOpMode.gamepad2.left_bumper) {
+                //claw.setPosition(CLAW_OPEN);
+                intakeL.setPower(1);
+                intakeR.setPower(1);
+                //  clawPivot.setPosition(WRIST_MID);
+            } else if (myOpMode.gamepad2.right_bumper) {
+                intakeL.setPower(-1);
+                intakeR.setPower(-1);
+                //   clawPivot.setPosition(WRIST_HOVER);
+            } else {
+                intakeL.setPower(0);
+                intakeR.setPower(0);
+                //  clawPivot.setPosition(WRIST_HOVER);
+            }
+
+             */
+
+
+
+
+            //set positions (CLAW)
             if (myOpMode.gamepad2.left_bumper) {
                 claw.setPosition(CLAW_OPEN);
             } else if(myOpMode.gamepad2.right_bumper){
                 claw.setPosition(CLAW_CLOSED);
             }
-/*
-            if (myOpMode.gamepad1.) {
+    if(myOpMode.gamepad2.right_trigger > 0.01) {
+        rotateSetPosition = CLAW_ROTATE_SAMPLE - myOpMode.gamepad2.right_trigger / 3;
+    }
+    if(myOpMode.gamepad2.left_trigger > 0.01){
+        rotateSetPosition = CLAW_ROTATE_SAMPLE;
+    }
+
+            clawRotate.setPosition(rotateSetPosition);
+
+
+            //360 claw
+            /*
+            if (myOpMode.gamepad2.left_trigger > 0.1) {
+                clawRotate.setPosition(ROTATE_HALF);
+            } else if(myOpMode.gamepad2.right_trigger > 0.1){
+                clawRotate.setPosition(ROTATE_FULL);
+            }
+
+             */
+
+
+
+
+
+            if (myOpMode.gamepad1.y) {
                 pivot.setPower(PIVOT_HIGH_BASKET);
             }
 
-            if (myOpMode.gamepad1.y) {
-                pivot.setPower(PIVOT_LOW_BASKET);
-            }
-            */
+            // if (myOpMode.gamepad1.y) {
+            //       pivot.setPower(PIVOT_LOW_BASKET);
+            // }
 
-            if(myOpMode.gamepad2.dpad_up){
+
+            if (myOpMode.gamepad2.dpad_up) {
                 clawPivot.setPosition(WRIST_IN);
+                rotateSetPosition = CLAW_ROTATE_SPECIMEN;
             }
 
-            if(myOpMode.gamepad2.dpad_left){
+            if (myOpMode.gamepad2.dpad_left) {
                 clawPivot.setPosition(WRIST_MID);
+                rotateSetPosition = CLAW_ROTATE_SAMPLE;
             }
 
-             if(myOpMode.gamepad2.dpad_right) {           
-                 clawPivot.setPosition(WRIST_AUTO);       
-             }
-             if(myOpMode.gamepad2.dpad_down){
+            if (myOpMode.gamepad2.dpad_right) {
+                rotateSetPosition = CLAW_ROTATE_SAMPLE;
+                clawPivot.setPosition(WRIST_AUTO);
+            }
+            if (myOpMode.gamepad2.dpad_down) {
                 clawPivot.setPosition(WRIST_OUT);
+                rotateSetPosition = CLAW_ROTATE_SAMPLE;
+
             }
         }
+
         public void update() {
             myOpMode.telemetry.addData("pivotPosition", pivot.getCurrentPosition());
             myOpMode.telemetry.addData("pivotMode", pivotMode);
@@ -171,21 +243,27 @@ import com.qualcomm.robotcore.hardware.Servo;
             }else if(myOpMode.gamepad2.a){
                 pivotMode = PivotMode.PIVOT_SUBMERSIBLE;
             }
-            //set positions
+           /* //set positions
             if (myOpMode.gamepad2.left_bumper) {
-                claw.setPosition(CLAW_OPEN);
+                //claw.setPosition(CLAW_OPEN);
+                intakeL.setPower(1);
+                intakeR.setPower(1);
             } else if(myOpMode.gamepad2.right_bumper){
-                claw.setPosition(CLAW_CLOSED);
-            }
-/*
-            if (myOpMode.gamepad1.) {
+                intakeL.setPower(-1);
+                intakeR.setPower(-1);
+            }else {
+                intakeL.setPower(0);
+                intakeR.setPower(0);
+            } */
+
+            if (myOpMode.gamepad1.y) {
                 pivot.setPower(PIVOT_HIGH_BASKET);
             }
 
-            if (myOpMode.gamepad1.y) {
-                pivot.setPower(PIVOT_LOW_BASKET);
-            }
-            */
+            //if (myOpMode.gamepad1.y) {
+            //    pivot.setPower(PIVOT_LOW_BASKET);
+            //}
+
 
             if(myOpMode.gamepad2.dpad_left){
                 clawPivot.setPosition(WRIST_MID);

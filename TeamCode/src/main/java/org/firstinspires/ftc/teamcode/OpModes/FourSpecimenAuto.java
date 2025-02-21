@@ -58,7 +58,7 @@ public class FourSpecimenAuto extends LinearOpMode {
 
         //calling init function
         robot.init();
-        robot.scoring.claw.setPosition(Scoring.CLAW_CLOSED);
+        //robot.scoring.claw.setPosition(Scoring.CLAW_CLOSED);
         robot.scoring.clawPivot.setPosition(Scoring.WRIST_IN);
 
         //TODO Pass starting pose to localizer
@@ -81,7 +81,7 @@ public class FourSpecimenAuto extends LinearOpMode {
         while (opModeIsActive() && !isStopRequested()) {
             switch (currentState){
                 case LIFT_OUT:
-                    robot.scoring.claw.setPosition(Scoring.CLAW_CLOSED);
+                    //robot.scoring.claw.setPosition(Scoring.CLAW_CLOSED);
                     robot.lift.liftMode = Lift.LiftMode.HIGH_CHAMBER;
                     robot.scoring.clawPivot.setPosition(Scoring.WRIST_AUTO);
                     if(timer.seconds() > 0.5) {
@@ -93,7 +93,7 @@ public class FourSpecimenAuto extends LinearOpMode {
                 case DRIVE_FORWARD:
                     if(timer.seconds() > 1){
                         //2
-                        robot.scoring.claw.setPosition(Scoring.CLAW_OPEN);
+                        //robot.scoring.claw.setPosition(Scoring.CLAW_OPEN);
                         robot.lift.liftMode = Lift.LiftMode.RETRACTED;
                     }
                     //put condition for switch at the beginning, condition can be based on time or completion of a task
@@ -136,7 +136,7 @@ public class FourSpecimenAuto extends LinearOpMode {
                     break;
                 case GET_SPECIMEN:
                     if(timer.seconds() > .5){
-                        robot.scoring.claw.setPosition(Scoring.CLAW_CLOSED);
+                        //robot.scoring.claw.setPosition(Scoring.CLAW_CLOSED);
                     }
                     //306
                     if(timer.seconds() > 1){
@@ -147,7 +147,7 @@ public class FourSpecimenAuto extends LinearOpMode {
                     break;
                 case DRIVE_TO_START:
                     robot.scoring.clawPivot.setPosition(Scoring.WRIST_AUTO);
-                    robot.scoring.claw.setPosition(Scoring.CLAW_CLOSED);
+                    //robot.scoring.claw.setPosition(Scoring.CLAW_CLOSED);
                     if(timer.seconds() > 1.5){
                         robot.lift.liftMode = Lift.LiftMode.HIGH_CHAMBER;
                     }
@@ -179,7 +179,7 @@ public class FourSpecimenAuto extends LinearOpMode {
                     break;
                 case IDLE:
                     robot.lift.liftMode = Lift.LiftMode.RETRACTED;
-                    robot.scoring.claw.setPosition(Scoring.CLAW_OPEN);
+                    //robot.scoring.claw.setPosition(Scoring.CLAW_OPEN);
                     break;
             }
 

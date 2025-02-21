@@ -56,7 +56,7 @@ public class Meet2Auto extends LinearOpMode {
 
         //calling init function
         robot.init();
-        robot.scoring.claw.setPosition(Scoring.CLAW_CLOSED);
+        //robot.scoring.claw.setPosition(Scoring.CLAW_CLOSED);
 
         //TODO Pass starting pose to localizer
         //for Gobilda it looks like this
@@ -77,7 +77,7 @@ public class Meet2Auto extends LinearOpMode {
         while (opModeIsActive() && !isStopRequested()) {
             switch (currentState){
                 case LIFT_OUT:
-                    robot.scoring.claw.setPosition(Scoring.CLAW_CLOSED);
+                    //robot.scoring.claw.setPosition(Scoring.CLAW_CLOSED);
                     robot.lift.liftMode = Lift.LiftMode.HIGH_CHAMBER;
                     robot.scoring.clawPivot.setPosition(Scoring.WRIST_OUT);
                     if(timer.seconds() > 0.5) {
@@ -88,7 +88,7 @@ public class Meet2Auto extends LinearOpMode {
                     break;
                 case DRIVE_FORWARD:
                     if(timer.seconds() > 2){
-                        robot.scoring.claw.setPosition(Scoring.CLAW_OPEN);
+                        //robot.scoring.claw.setPosition(Scoring.CLAW_OPEN);
                         robot.lift.liftMode = Lift.LiftMode.RETRACTED;
                     }
                     //put condition for switch at the beginning, condition can be based on time or completion of a task
@@ -106,7 +106,7 @@ public class Meet2Auto extends LinearOpMode {
                     }
                     break;
                 case GET_SPECIMEN:
-                    robot.scoring.claw.setPosition(Scoring.CLAW_CLOSED);
+                    //robot.scoring.claw.setPosition(Scoring.CLAW_CLOSED);
                     //306
                     if(timer.seconds() > 1.0){
                         currentState = State.DRIVE_TO_START;
@@ -116,7 +116,7 @@ public class Meet2Auto extends LinearOpMode {
                     break;
                 case DRIVE_TO_START:
                     robot.scoring.clawPivot.setPosition(Scoring.WRIST_OUT);
-                    robot.scoring.claw.setPosition(Scoring.CLAW_CLOSED);
+                    //robot.scoring.claw.setPosition(Scoring.CLAW_CLOSED);
                     if(timer.seconds() > 3){
                         robot.lift.liftMode = Lift.LiftMode.HIGH_CHAMBER;
                     }
@@ -148,7 +148,7 @@ public class Meet2Auto extends LinearOpMode {
                     break;
                 case IDLE:
                     robot.lift.liftMode = Lift.LiftMode.RETRACTED;
-                    robot.scoring.claw.setPosition(Scoring.CLAW_OPEN);
+                    //robot.scoring.claw.setPosition(Scoring.CLAW_OPEN);
                     break;
             }
 

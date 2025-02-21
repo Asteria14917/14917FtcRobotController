@@ -1,6 +1,6 @@
 package org.firstinspires.ftc.teamcode.Subsystems;
 
-    //package org.firstinspires.ftc.teamcode;
+//package org.firstinspires.ftc.teamcode;
 
 import com.acmerobotics.dashboard.config.Config;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
@@ -88,20 +88,70 @@ public class Lift {
         leftLift.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         rightLift.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         if(liftMode == LiftMode.MANUAL) {
-            if (myOpMode.gamepad2.left_trigger > 0.1 && leftLift.getCurrentPosition() > 0) {
-                leftLift.setPower(-0.3);
-                rightLift.setPower(-0.3);
-            } else if (scoring.pivot.getCurrentPosition() > 0 && myOpMode.gamepad2.right_trigger > 0.1 && leftLift.getCurrentPosition() < EXT_HIGH_BASKET) {
+            double power = -myOpMode.gamepad2.right_stick_y;
+            // Only update lift power if the joystick is not in a neutral position
+/*
+            if (myOpMode.gamepad2.right_stick_y > 0.1 && leftLift.getCurrentPosition() > 0) {
+                leftLift.setPower(-0.7);
+                rightLift.setPower(-0.7);
+            } else if (scoring.pivot.getCurrentPosition() > 0 && myOpMode.gamepad2.right_stick_y < -0.1 && leftLift.getCurrentPosition() < EXT_HIGH_BASKET) {
                 leftLift.setPower(0.7);
                 rightLift.setPower(0.7);
-            }else if (scoring.pivot.getCurrentPosition() < 0 && myOpMode.gamepad2.right_trigger > 0.1 && leftLift.getCurrentPosition() < EXT_LIMIT) {
-                leftLift.setPower(0.7);
-                rightLift.setPower(0.7);
+            }else if (scoring.pivot.getCurrentPosition() < 0 && myOpMode.gamepad2.right_stick_y > 0.1 && leftLift.getCurrentPosition() < EXT_LIMIT) {
+                leftLift.setPower(0);
+                rightLift.setPower(0);
             }
-                else{
-                leftLift.setPower(myOpMode.gamepad2.right_stick_y);
-                rightLift.setPower(myOpMode.gamepad2.right_stick_y);
+            */
+
+            if (scoring.pivot.getCurrentPosition() < 0 && leftLift.getCurrentPosition() > EXT_LIMIT && power > 0.1){
+                leftLift.setPower(0);
+                rightLift.setPower(0);
             }
+            //upper limit: if pivot is up AND the lift is fully extended AND the joystick is up, set power to zero
+            else if (scoring.pivot.getCurrentPosition() > 0 && leftLift.getCurrentPosition() > EXT_HIGH_BASKET && power > 0.1) {
+                leftLift.setPower(0);
+                rightLift.setPower(0);
+
+            }
+            //if lift is down and joystick is down, set the power to zero
+            else if (leftLift.getCurrentPosition() < 0 && power < -0.1){
+                    leftLift.setPower(0);
+                    rightLift.setPower(0);
+            } else {
+                if (Math.abs(myOpMode.gamepad2.right_stick_y) > 0.1){
+                    rightLift.setPower(power);
+                    leftLift.setPower(power);
+                } else {
+                    leftLift.setPower(0.03);
+                    rightLift.setPower(0.03);
+                }
+            }
+            /*
+            if (leftLift.getCurrentPosition() < 0 && myOpMode.gamepad2.right_stick_y > 0.1) {
+                //leftLift.setPower(0);
+                //rightLift.setPower(0);
+            } else if (scoring.pivot.getCurrentPosition() < 0 && myOpMode.gamepad2.right_stick_y > 0.1 && leftLift.getCurrentPosition() > EXT_LIMIT) {
+                leftLift.setPower(0);
+                rightLift.setPower(0);
+            } else if (scoring.pivot.getCurrentPosition() > 0 && myOpMode.gamepad2.right_stick_y > 0.1 && leftLift.getCurrentPosition() > EXT_HIGH_BASKET) {
+                leftLift.setPower(0);
+                rightLift.setPower(0);
+            }else {
+                if (myOpMode.gamepad2.right_stick_y > 0.1 && leftLift.getCurrentPosition() > 0) {
+                    leftLift.setPower(0.7);
+                    rightLift.setPower(0.7);
+                } else if (myOpMode.gamepad2.right_stick_y > 0.1 && leftLift.getCurrentPosition() < EXT_HIGH_BASKET) {
+                    leftLift.setPower(-0.3);
+                    rightLift.setPower(-0.3);
+                }
+
+            }*/
+
+
+                // else{
+            //leftLift.setPower(myOpMode.gamepad2.right_stick_y);
+            //rightLift.setPower(myOpMode.gamepad2.right_stick_y);
+            //}
         }else if(liftMode == LiftMode.HIGH_CHAMBER) {
             liftToPositionPIDClass(EXT_HIGH_CHAMBER);
         }else if(liftMode == LiftMode.RETRACTED){
@@ -114,7 +164,7 @@ public class Lift {
         }
 
         //setting lift state
-        if(Math.abs(myOpMode.gamepad2.left_trigger) > 0.1 || Math.abs(myOpMode.gamepad2.right_trigger) > 0.1){
+        if (myOpMode.gamepad2.right_stick_y > 0.1) {
             liftMode = LiftMode.MANUAL;
             rightLift.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
             leftLift.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
@@ -138,12 +188,20 @@ public class Lift {
         leftLift.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         rightLift.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         if(liftMode == LiftMode.MANUAL) {
-            if (myOpMode.gamepad2.left_trigger > 0.1 && leftLift.getCurrentPosition() > 0) {
-                leftLift.setPower(-0.3);
-                rightLift.setPower(-0.3);
-            } else if (myOpMode.gamepad2.right_trigger > 0.1 && leftLift.getCurrentPosition() < EXT_HIGH_BASKET) {
+            double power = myOpMode.gamepad2.right_stick_y;
+            if (Math.abs(power) > 0.1) {
+                leftLift.setPower(power * 0.7);  // Use appropriate scaling
+                rightLift.setPower(power * 0.7);
+            } else {
+                leftLift.setPower(0);  // Stop lift when no joystick input
+                rightLift.setPower(0);
+            }
+            if (myOpMode.gamepad2.right_stick_y > 0.1 && leftLift.getCurrentPosition() > 0) {
                 leftLift.setPower(0.7);
                 rightLift.setPower(0.7);
+            } else if (myOpMode.gamepad2.right_stick_y > 0.1 && leftLift.getCurrentPosition() < EXT_HIGH_BASKET) {
+                leftLift.setPower(-0.3);
+                rightLift.setPower(-0.3);
             } else{
                 leftLift.setPower(0);
                 rightLift.setPower(0);
@@ -173,12 +231,12 @@ public class Lift {
         myOpMode.telemetry.addData("LiftRightPower: ", rightOut);
         myOpMode.telemetry.addData("Running to", targetPosition);
         myOpMode.telemetry.addData("Currently at",  " at %7d :%7d",
-               leftLift.getCurrentPosition(), rightLift.getCurrentPosition());
+                leftLift.getCurrentPosition(), rightLift.getCurrentPosition());
     }
 
 
     public void liftToTargetPosition(double speed,
-                             int targetPosition) {
+                                     int targetPosition) {
 
         // Ensure that the OpMode is still active
         if (myOpMode.opModeIsActive()) {
@@ -201,14 +259,13 @@ public class Lift {
             // always end the motion as soon as possible.
             // However, if you require that BOTH motors have finished their moves before the robot continues
             // onto the next step, use (isBusy() || isBusy()) in the loop test.
-                // Display it for the driver.
-                myOpMode.telemetry.addData("Running to", targetPosition);
-                myOpMode.telemetry.addData("Currently at",  " at %7d :%7d",
-                        leftLift.getCurrentPosition(), rightLift.getCurrentPosition());
-            }
-              // optional pause after each move.
+            // Display it for the driver.
+            myOpMode.telemetry.addData("Running to", targetPosition);
+            myOpMode.telemetry.addData("Currently at",  " at %7d :%7d",
+                    leftLift.getCurrentPosition(), rightLift.getCurrentPosition());
         }
+        // optional pause after each move.
+    }
 
 
 }
-

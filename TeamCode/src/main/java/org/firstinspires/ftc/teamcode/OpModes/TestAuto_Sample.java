@@ -56,7 +56,7 @@ public class TestAuto_Sample extends LinearOpMode {
 
         //calling init function
         robot.init();
-        robot.scoring.claw.setPosition(Scoring.CLAW_CLOSED);
+        //robot.scoring.claw.setPosition(Scoring.CLAW_CLOSED);
 
         //TODO Pass starting pose to localizer
         //for Gobilda it looks like this
@@ -90,7 +90,7 @@ public class TestAuto_Sample extends LinearOpMode {
                     }
                     robot.scoring.clawPivot.setPosition(Scoring.WRIST_AUTO);
                     if(timer.seconds() > 4) {
-                        robot.scoring.claw.setPosition(Scoring.CLAW_OPEN);
+                        //robot.scoring.claw.setPosition(Scoring.CLAW_OPEN);
                         robot.scoring.clawPivot.setPosition(Scoring.WRIST_IN);
                         currentState = State.DRIVE_TO_SAMPLE;
                         timer.reset();
@@ -102,7 +102,7 @@ public class TestAuto_Sample extends LinearOpMode {
                     robot.drivetrain.driveToTarget(new Pose2D (DistanceUnit.INCH, sampleX, sampleY, AngleUnit.DEGREES,sampleHeading));
                     robot.scoring.clawPivot.setPosition(Scoring.WRIST_MID);
                     if(timer.seconds() > 2){
-                        robot.scoring.claw.setPosition(Scoring.CLAW_CLOSED);
+                        //robot.scoring.claw.setPosition(Scoring.CLAW_CLOSED);
                     }
                     if(scoreTwo > 3){
                         currentState = State.DRIVE_TO_BASKET;
