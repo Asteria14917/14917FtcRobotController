@@ -61,6 +61,7 @@ import org.firstinspires.ftc.teamcode.Subsystems.Scoring;
             //robot.scoring.claw.setPosition(Scoring.CLAW_CLOSED);
             robot.scoring.clawPivot.setPosition(Scoring.WRIST_IN);
 
+
             //TODO Pass starting pose to localizer
             //for Gobilda it looks like this
             robot.drivetrain.localizer.odo.setPosition(startPose);
@@ -177,11 +178,6 @@ import org.firstinspires.ftc.teamcode.Subsystems.Scoring;
                     }
                     */
                     case DRIVE_FORWARD_TWO:
-                        if(timer.seconds() > 1){
-                            currentState = org.firstinspires.ftc.teamcode.OpModes.FiveSpecimenAuto.State.IDLE;
-                            robot.drivetrain.setTargetPose(new Pose2D (DistanceUnit.INCH, targetX, -30, AngleUnit.DEGREES, targetHeading));
-                            timer.reset();
-                        }
                         break;
                     case IDLE:
                         robot.lift.liftMode = Lift.LiftMode.RETRACTED;
