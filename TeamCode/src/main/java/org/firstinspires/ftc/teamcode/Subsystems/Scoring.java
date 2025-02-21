@@ -20,8 +20,8 @@ import com.qualcomm.robotcore.hardware.Servo;
 
         // Define Drive constants.  Make them public so they CAN be used by the calling OpMode
 
-        public static final double CLAW_OPEN = 0.3;
-        public static final double CLAW_CLOSED = 0.55;
+        public static final double CLAW_OPEN = 0.4;
+        public static final double CLAW_CLOSED = 0.7;
         public static final int PIVOT_HIGH_BASKET = 600;        public static final int PIVOT_ZERO= 0;
         public static final int PIVOT_SUBMERSIBLE = -1050;
         public static final double PIVOT_SPEED = 0.9;

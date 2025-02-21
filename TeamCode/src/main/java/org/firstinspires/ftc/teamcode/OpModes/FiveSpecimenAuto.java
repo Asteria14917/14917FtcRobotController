@@ -59,7 +59,7 @@ import org.firstinspires.ftc.teamcode.Subsystems.Scoring;
             //calling init function
             robot.init();
             //robot.scoring.claw.setPosition(Scoring.CLAW_CLOSED);
-            robot.scoring.clawPivot.setPosition(Scoring.WRIST_IN);
+           // robot.scoring.clawPivot.setPosition(Scoring.WRIST_IN);
 
 
             //TODO Pass starting pose to localizer
@@ -83,8 +83,8 @@ import org.firstinspires.ftc.teamcode.Subsystems.Scoring;
                 switch (currentState){
                     case LIFT_OUT:
                         //robot.scoring.claw.setPosition(Scoring.CLAW_CLOSED);
-                        robot.lift.liftMode = Lift.LiftMode.HIGH_CHAMBER;
-                        robot.scoring.clawPivot.setPosition(Scoring.WRIST_AUTO);
+                        //robot.lift.liftMode = Lift.LiftMode.HIGH_CHAMBER;
+                        //robot.scoring.clawPivot.setPosition(Scoring.WRIST_AUTO);
                         if(timer.seconds() > 0.5) {
                             currentState = org.firstinspires.ftc.teamcode.OpModes.FiveSpecimenAuto.State.SWIPE_SAMPLE;
                             robot.drivetrain.setTargetPose(new Pose2D(DistanceUnit.INCH, 28, 3, AngleUnit.DEGREES, 0));
@@ -95,17 +95,17 @@ import org.firstinspires.ftc.teamcode.Subsystems.Scoring;
                         if(timer.seconds() > 1){
                             //2
                             //robot.scoring.claw.setPosition(Scoring.CLAW_OPEN);
-                            robot.lift.liftMode = Lift.LiftMode.RETRACTED;
+                           // robot.lift.liftMode = Lift.LiftMode.RETRACTED;
                         }
                         //put condition for switch at the beginning, condition can be based on time or completion of a task
                         if(timer.seconds() > 1.5 && score < 4){
                             //currentState = org.firstinspires.ftc.teamcode.OpModes.FiveSpecimenAuto.State.PASS_SPECIMEN;
                             robot.drivetrain.setTargetPose(new Pose2D(DistanceUnit.INCH, 15, -24, AngleUnit.DEGREES, 0));
-                            robot.scoring.pivotMode = Scoring.PivotMode.PIVOT_SUBMERSIBLE;
-                            robot.lift.liftMode = Lift.LiftMode.HIGH_CHAMBER;
                             timer.reset();
-                        } else if(timer.seconds() > 2 && score < 4){
-                            robot.drivetrain.setTargetPose(new Pose2D(DistanceUnit.INCH, 15, -24, AngleUnit.DEGREES, 100));
+                        } else if(timer.seconds() > 2){
+                            robot.scoring.pivotMode = Scoring.PivotMode.PIVOT_SUBMERSIBLE;
+                           // robot.lift.liftMode = Lift.LiftMode.HIGH_CHAMBER;
+                           robot.drivetrain.setTargetPose(new Pose2D(DistanceUnit.INCH, 15, -24, AngleUnit.DEGREES, -100));
 
                         }
                         else if(timer.seconds() > 1.5 && score < 0){
