@@ -48,6 +48,7 @@ import org.firstinspires.ftc.teamcode.Subsystems.Scoring;
         public static double targetY = 0;
         public static double targetHeading = 0;
         public static int score = 0;
+        public static int specimennum = 0;
         Pose2D targetPose = new Pose2D(DistanceUnit.INCH, targetX,targetY, AngleUnit.DEGREES, targetHeading);
 
         @Override
@@ -93,24 +94,19 @@ import org.firstinspires.ftc.teamcode.Subsystems.Scoring;
                         break;
                     case SWIPE_SAMPLE:
                         if(timer.seconds() > 1){
-                            //2
-                            //robot.scoring.claw.setPosition(Scoring.CLAW_OPEN);
-                           // robot.lift.liftMode = Lift.LiftMode.RETRACTED;
-                        }
+                        //2
+                        //robot.scoring.claw.setPosition(Scoring.CLAW_OPEN);
+                        robot.lift.liftMode = Lift.LiftMode.RETRACTED;
+                    }
                         //put condition for switch at the beginning, condition can be based on time or completion of a task
-                        if(timer.seconds() > 1.5 && score < 4){
-                            //currentState = org.firstinspires.ftc.teamcode.OpModes.FiveSpecimenAuto.State.PASS_SPECIMEN;
-                            robot.drivetrain.setTargetPose(new Pose2D(DistanceUnit.INCH, 15, -24, AngleUnit.DEGREES, 0));
+                        if(timer.seconds() > 1.5 && specimennum < 3){
+                            currentState = FiveSpecimenAuto.State.PASS_SPECIMEN;
+                            robot.drivetrain.setTargetPose(new Pose2D(DistanceUnit.INCH, 22, -24, AngleUnit.DEGREES, 0));
+                            specimennum ++;
                             timer.reset();
-                        } else if(timer.seconds() > 2){
-                            robot.scoring.pivotMode = Scoring.PivotMode.PIVOT_SUBMERSIBLE;
-                           // robot.lift.liftMode = Lift.LiftMode.HIGH_CHAMBER;
-                           robot.drivetrain.setTargetPose(new Pose2D(DistanceUnit.INCH, 15, -24, AngleUnit.DEGREES, -100));
-
-                        }
-                        else if(timer.seconds() > 1.5 && score < 0){
+                        } else if(timer.seconds() > 1.5 && score > 0){
                             //2.5
-                            currentState = org.firstinspires.ftc.teamcode.OpModes.FiveSpecimenAuto.State.DRIVE_TO_SPECIMEN;
+                            currentState = FiveSpecimenAuto.State.DRIVE_TO_SPECIMEN;
                             robot.drivetrain.setTargetPose(new Pose2D(DistanceUnit.INCH, 3,-30, AngleUnit.DEGREES, -180));
                             timer.reset();
                         }
@@ -119,20 +115,23 @@ import org.firstinspires.ftc.teamcode.Subsystems.Scoring;
                         if(timer.seconds() < 1){
                             robot.drivetrain.driveToTarget(new Pose2D(DistanceUnit.INCH, 22, -24, AngleUnit.DEGREES, 0));
                         }else if(timer.seconds() < 2){
-                            robot.drivetrain.driveToTarget(new Pose2D(DistanceUnit.INCH, 50, -30, AngleUnit.DEGREES, 0));
+                            robot.drivetrain.driveToTarget(new Pose2D(DistanceUnit.INCH, 50, -29-(specimennum+1), AngleUnit.DEGREES, 0));
                         }else if(timer.seconds() < 2.5){
-                            robot.drivetrain.driveToTarget(new Pose2D(DistanceUnit.INCH, 50, -40, AngleUnit.DEGREES, 0));
+                            robot.drivetrain.driveToTarget(new Pose2D(DistanceUnit.INCH, 50, -39-(specimennum+1), AngleUnit.DEGREES, 0));
                         }else if(timer.seconds() < 3.5){
-                            robot.drivetrain.driveToTarget(new Pose2D(DistanceUnit.INCH, 6, -40, AngleUnit.DEGREES, 0));
-                        }else if(timer.seconds() < 4.5){
-                            robot.drivetrain.setTargetPose(new Pose2D(DistanceUnit.INCH, 6, -30, AngleUnit.DEGREES, -180));
-                            currentState = org.firstinspires.ftc.teamcode.OpModes.FiveSpecimenAuto.State.DRIVE_TO_SPECIMEN;
+                            robot.drivetrain.driveToTarget(new Pose2D(DistanceUnit.INCH, 6, -39, AngleUnit.DEGREES, 0));
+                        } else if(timer.seconds() < 4.5) {
+                            robot.drivetrain.setTargetPose(new Pose2D(DistanceUnit.INCH, 50, -24-(specimennum+1), AngleUnit.DEGREES, 0));
+                            currentState = State.SWIPE_SAMPLE;
                             timer.reset();
                         }
+
                         break;
                     case DRIVE_TO_SPECIMEN:
                         robot.scoring.clawPivot.setPosition(Scoring.WRIST_OUT);
+                        /*
                         if(timer.seconds() < 2){
+
                             robot.drivetrain.driveToTarget(new Pose2D(DistanceUnit.INCH, 8, -30, AngleUnit.DEGREES, -180));
                         }else if(timer.seconds() < 3){
                             robot.drivetrain.driveToTarget(new Pose2D(DistanceUnit.INCH, 1, -30, AngleUnit.DEGREES, -180));
@@ -140,6 +139,7 @@ import org.firstinspires.ftc.teamcode.Subsystems.Scoring;
                             currentState = org.firstinspires.ftc.teamcode.OpModes.FiveSpecimenAuto.State.GET_SPECIMEN;
                             timer.reset();
                         }
+                        */
                         break;
                     case GET_SPECIMEN:
                         if(timer.seconds() > .5){

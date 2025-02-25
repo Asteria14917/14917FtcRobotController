@@ -20,12 +20,13 @@ import com.qualcomm.robotcore.hardware.Servo;
 
         // Define Drive constants.  Make them public so they CAN be used by the calling OpMode
 
-        public static final double CLAW_OPEN = 0.4;
-        public static final double CLAW_CLOSED = 0.7;
+        public static final double CLAW_OPEN = 0.69;
+        public static final double CLAW_CLOSED = 0.2;
         public static final int PIVOT_HIGH_BASKET = 600;        public static final int PIVOT_ZERO= 0;
         public static final int PIVOT_SUBMERSIBLE = -1050;
         public static final double PIVOT_SPEED = 0.9;
-        public static final int PIVOT_OBSERVATION_ZONE = -1300;
+        public static final int PIVOT_OBSERVATION_ZONE = 1943;//used to be -1300
+        public static final int PIVOT_HIGH_CHAMBER = 284;
         public double rotateSetPosition;
         public static final double CLAW_ROTATE_SPECIMEN = 0;
         public static final double CLAW_ROTATE_SAMPLE = 0.65;
@@ -42,7 +43,7 @@ import com.qualcomm.robotcore.hardware.Servo;
 
         //mid is low, out is middle, in is high
         //for second specimen scoring
-        public static double WRIST_AUTO = 0.3;
+        public static double WRIST_AUTO = 0.35;
         public static final int PIVOT_LOW_LIMIT = -1200;
         public static final int PIVOT_HIGH_LIMIT = 1200;
 
@@ -107,7 +108,7 @@ import com.qualcomm.robotcore.hardware.Servo;
             } else if (pivotMode == PivotMode.PIVOT_HIGH_BASKET) {
                 pivotToTargetPosition(PIVOT_SPEED, PIVOT_HIGH_BASKET);
             } else if (pivotMode == PivotMode.PIVOT_HIGH_CHAMBER) {
-                pivotToTargetPosition(PIVOT_SPEED, PIVOT_ZERO);
+                pivotToTargetPosition(PIVOT_SPEED, PIVOT_HIGH_CHAMBER);
             } else if (pivotMode == PivotMode.OBSERVATION_ZONE) {
                 pivotToTargetPosition(PIVOT_SPEED, PIVOT_OBSERVATION_ZONE);
             } else if (pivotMode == PivotMode.ASCENT) {
@@ -122,11 +123,19 @@ import com.qualcomm.robotcore.hardware.Servo;
             // pivotMode = PivotMode.PIVOT_SUBMERSIBLE;
             //}
             else if (myOpMode.gamepad2.x) {
-                pivotMode = PivotMode.PIVOT_HIGH_CHAMBER;
+                rotateSetPosition = CLAW_ROTATE_SAMPLE;
                 clawPivot.setPosition(WRIST_AUTO);
-            } else if (myOpMode.gamepad2.b) {
                 pivotMode = PivotMode.PIVOT_HIGH_CHAMBER;
-                clawPivot.setPosition(WRIST_OUT);
+            } else if (myOpMode.gamepad2.b) {
+                pivotMode = PivotMode.OBSERVATION_ZONE;
+                clawPivot.setPosition(WRIST_IN);
+                rotateSetPosition = CLAW_ROTATE_SPECIMEN;
+
+                //set posItions with mini claw
+                //b is wall position, x is scoring
+                //b pivot is 1943, claw opens
+                //x pivot 284, lift 215, wrist is WRIST_AUTO
+
             }
 
 
