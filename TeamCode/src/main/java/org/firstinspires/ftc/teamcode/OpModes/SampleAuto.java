@@ -24,8 +24,8 @@ import org.firstinspires.ftc.teamcode.Subsystems.Scoring;
         // This is essentially just defines the possible steps our program will take
         //TODO Update states to reflect flow of robot actions
         enum State {
-            DRIVE_FORWARD,
-            GET_SAMPLE,
+            DRIVE_TO_BUCKET,
+            DUMP_SAMPLE,
             GO_TO_BUCKET,
             DUMP,
             DRIVE_TO_START,
@@ -36,7 +36,7 @@ import org.firstinspires.ftc.teamcode.Subsystems.Scoring;
 
         // We define the current state we're on
         // Default to IDLE
-        org.firstinspires.ftc.teamcode.OpModes.SampleAuto.State currentState = org.firstinspires.ftc.teamcode.OpModes.SampleAuto.State.DRIVE_FORWARD;
+        org.firstinspires.ftc.teamcode.OpModes.SampleAuto.State currentState = org.firstinspires.ftc.teamcode.OpModes.SampleAuto.State.DRIVE_TO_BUCKET;
 
         // Define our start pose
         Pose2D startPose = new Pose2D(DistanceUnit.INCH, 0,0, AngleUnit.DEGREES,0);
@@ -56,7 +56,10 @@ import org.firstinspires.ftc.teamcode.Subsystems.Scoring;
 
             //calling init function
             robot.init();
-
+            robot.scoring.clawPivot.setPosition(Scoring.WRIST_IN);
+            robot.scoring.claw.setPosition(Scoring.CLAW_CLOSED);
+            robot.scoring.clawRotate.setPosition(Scoring.CLAW_ROTATE_SPECIMEN);
+            score = 0;
             //TODO Pass starting pose to localizer
             //for Gobilda it looks like this
             robot.drivetrain.localizer.odo.setPosition(startPose);
@@ -75,37 +78,58 @@ import org.firstinspires.ftc.teamcode.Subsystems.Scoring;
             // run until the end of the match (driver presses STOP)
             while (opModeIsActive() && !isStopRequested()) {
                 switch (currentState){
-                    case DRIVE_FORWARD:
+                    case DRIVE_TO_BUCKET:
                         //robot.scoring.claw.setPosition(Scoring.CLAW_OPEN);
-                        if(timer.seconds() > 2) {
-                            currentState = org.firstinspires.ftc.teamcode.OpModes.SampleAuto.State.GET_SAMPLE;
-                            robot.drivetrain.setTargetPose(new Pose2D(DistanceUnit.INCH, 24, 20, AngleUnit.DEGREES, 0));
+                        if(timer.seconds() > 1) {
+                            currentState = org.firstinspires.ftc.teamcode.OpModes.SampleAuto.State.DUMP_SAMPLE;
+                            robot.drivetrain.setTargetPose(new Pose2D(DistanceUnit.INCH, 6, 11, AngleUnit.DEGREES, -45)); //10
+                            robot.scoring.clawPivot.setPosition(Scoring.WRIST_OUT);
+                           //15 and 10
+                            //24
+                            //20
                             timer.reset();
                         }
                         break;
-                    case GET_SAMPLE:
-                        robot.scoring.pivotMode = Scoring.PivotMode.PIVOT_SUBMERSIBLE;
-                        robot.lift.liftMode = Lift.LiftMode.RETRACTED;
-                        //robot.scoring.clawPivot.setPosition(Scoring.WRIST_IN);
+                    case DUMP_SAMPLE:
+                        if(timer.seconds() < 2.8){
+                            robot.scoring.pivotMode = Scoring.PivotMode.PIVOT_HIGH_BASKET;
+                            robot.lift.liftMode = Lift.LiftMode.HIGH_BASKET;
+                        }
                         //put condition for switch at the beginning, condition can be based on time or completion of a task
-                        if(timer.seconds() > 2){
+                        else if(timer.seconds() < 3) {
+                            robot.scoring.clawPivot.setPosition(Scoring.WRIST_IN);
+                        }else if(timer.seconds() < 3.3) {
+                            robot.scoring.claw.setPosition(Scoring.CLAW_OPEN);
+                        }else if(timer.seconds() < 3.6) {
+                            robot.scoring.clawPivot.setPosition(Scoring.WRIST_OUT);
+                        }else if(timer.seconds() < 3.8){
+                            robot.lift.liftMode = Lift.LiftMode.RETRACTED;
+
                             //robot.scoring.claw.setPosition(Scoring.CLAW_CLOSED);
                             currentState = org.firstinspires.ftc.teamcode.OpModes.SampleAuto.State.GO_TO_BUCKET;
-                            robot.drivetrain.setTargetPose(new Pose2D(DistanceUnit.INCH, -20,12, AngleUnit.DEGREES, -45));
+                            robot.drivetrain.setTargetPose(new Pose2D(DistanceUnit.INCH, 20,10+score*9, AngleUnit.DEGREES, 0));//14
                             timer.reset();
                         }
                         break;
                     case GO_TO_BUCKET:
-                        robot.scoring.pivotMode = Scoring.PivotMode.PIVOT_HIGH_BASKET;
-                        robot.lift.liftMode = Lift.LiftMode.HIGH_BASKET;
-                        robot.scoring.clawPivot.setPosition(Scoring.WRIST_MID);
-                        //robot.scoring.claw.setPosition(Scoring.CLAW_OPEN);
-                        if(robot.drivetrain.targetReached || timer.seconds() > 3) {
-                            currentState = org.firstinspires.ftc.teamcode.OpModes.SampleAuto.State.IDLE;
+                        robot.scoring.pivotMode = Scoring.PivotMode.PIVOT_SUBMERSIBLE;
+                       // robot.lift.liftMode = Lift.LiftMode.HIGH_BASKET;
+                       robot.scoring.clawPivot.setPosition(Scoring.WRIST_MID);
+                        robot.scoring.claw.setPosition(Scoring.CLAW_OPEN);
+                        if(timer.seconds() < 1) {
+                          robot.scoring.claw.setPosition(Scoring.CLAW_CLOSED);
+                            robot.scoring.clawPivot.setPosition(Scoring.WRIST_MID);
+                            score++;
+                        }else if(timer.seconds() < 1.5 && score < 2){
+                            currentState = State.DRIVE_TO_BUCKET;
+                            //robot.scoring.claw.setPosition(Scoring.CLAW_CLOSED);
+                            timer.reset();
+                        }else{
+                            currentState = State.IDLE;
                             timer.reset();
                         }
                         break;
-                    case DUMP:
+                    case DUMP: /*
                         //robot.scoring.claw.setPosition(Scoring.CLAW_CLOSED);
                         //306
                         if(timer.seconds() > 2.0){
@@ -113,24 +137,27 @@ import org.firstinspires.ftc.teamcode.Subsystems.Scoring;
                             robot.drivetrain.setTargetPose(new Pose2D(DistanceUnit.INCH, 0,3, AngleUnit.DEGREES, 0));
                             timer.reset();
                         }
+                        */
                         break;
                     case DRIVE_TO_START:
+                        /*
                         robot.scoring.clawPivot.setPosition(Scoring.WRIST_OUT);
                         //robot.scoring.claw.setPosition(Scoring.CLAW_CLOSED);
                         if(timer.seconds() > 3){
                             robot.lift.liftMode = Lift.LiftMode.HIGH_CHAMBER;
                         }
                         if(robot.drivetrain.targetReached || timer.seconds() > 4.0){
-                            currentState = org.firstinspires.ftc.teamcode.OpModes.SampleAuto.State.DRIVE_FORWARD;
+                            currentState = org.firstinspires.ftc.teamcode.OpModes.SampleAuto.State.DRIVE_TO_BUCKET;
                             robot.drivetrain.setTargetPose(new Pose2D(DistanceUnit.INCH, 24, 8+score*2, AngleUnit.DEGREES, 0));
                             timer.reset();
                             if(score < 2){
                                 score++;
-                                currentState = org.firstinspires.ftc.teamcode.OpModes.SampleAuto.State.DRIVE_FORWARD;
+                                currentState = org.firstinspires.ftc.teamcode.OpModes.SampleAuto.State.DRIVE_TO_BUCKET;
                             }else{
                                 currentState = org.firstinspires.ftc.teamcode.OpModes.SampleAuto.State.DRIVE_FORWARD_TWO;
                             }
                         }
+                        */
                         break;
                     /*
                 case LIFT:

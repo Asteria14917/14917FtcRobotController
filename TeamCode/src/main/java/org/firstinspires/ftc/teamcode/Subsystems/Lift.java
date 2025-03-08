@@ -30,11 +30,12 @@ public class Lift {
     public static double LIFT_MAX_OUT = 0.9;
 
     //lift constants
-    public static int EXT_HIGH_BASKET= 4000;
+    //1228
+    public static int EXT_HIGH_BASKET= 1800;
     public static int EXT_RETRACTED = 0;
-    public static int EXT_LIMIT = 1800;
+    public static int EXT_LIMIT = 1250;
     //lift for auto
-    public static int EXT_HIGH_CHAMBER = 230; //used to be 1000
+    public static int EXT_HIGH_CHAMBER = 2070; //used to be 1000 //was 230 //1800 //1880
     public static int EXT_AUTO_2 = 1800;
     public static int EXT_LOW_BASKET = 1170;
     public static final double LIFT_SPEED = 0.5;
@@ -87,6 +88,14 @@ public class Lift {
         myOpMode.telemetry.addData("liftMode", liftMode);
         leftLift.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         rightLift.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        if (myOpMode.gamepad1.dpad_right){
+            rightLift.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+            leftLift.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+            rightLift.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+            leftLift.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        }
+
+
         if(liftMode == LiftMode.MANUAL) {
             double power = -myOpMode.gamepad2.right_stick_y;
             // Only update lift power if the joystick is not in a neutral position
@@ -102,7 +111,7 @@ public class Lift {
                 rightLift.setPower(0);
             }
             */
-
+//extension limit when the pivot is down
             if (scoring.pivot.getCurrentPosition() < 0 && leftLift.getCurrentPosition() > EXT_LIMIT && power > 0.1){
                 leftLift.setPower(0);
                 rightLift.setPower(0);
@@ -113,11 +122,16 @@ public class Lift {
                 rightLift.setPower(0);
 
             }
+            else if(scoring.pivot.getCurrentPosition() > 1550 && leftLift.getCurrentPosition() > 0 && power > 0.1){
+                leftLift.setPower(0);
+                rightLift.setPower(0);
+            }
             //if lift is down and joystick is down, set the power to zero
-            else if (leftLift.getCurrentPosition() < 0 && power < -0.1){
+            else if (leftLift.getCurrentPosition() < 0 && power < -0.1 && !myOpMode.gamepad2.right_stick_button){
                     leftLift.setPower(0);
                     rightLift.setPower(0);
-            } else {
+            }
+            else {
                 if (Math.abs(myOpMode.gamepad2.right_stick_y) > 0.1){
                     rightLift.setPower(power);
                     leftLift.setPower(power);

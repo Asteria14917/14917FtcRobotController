@@ -44,11 +44,21 @@ public class TeleOp extends LinearOpMode {
             lift.teleOp();
             scoring.teleOp();
             telemetry.update();
+            if(scoring.pivotMode == Scoring.PivotMode.MANUAL){
+                //prevent pivot from going past vertical when lift is extended
+                if(scoring.pivot.getCurrentPosition() > 1300 && lift.leftLift.getCurrentPosition() > 200 && -gamepad2.left_stick_y > .1){
+                    scoring.pivot.setPower(0);
+                }
+            }
             if (gamepad1.y) {
                 timer.reset();
                 ascending = true;
                 lift.liftMode = Lift.LiftMode.ASCENT;
                 scoring.pivotMode = Scoring.PivotMode.ASCENT;
+            }
+            if(gamepad1.x){
+                timer.reset();
+                ascending = false;
             }
             if (ascending) {
                 if (timer.seconds() < 1) {
@@ -64,16 +74,16 @@ public class TeleOp extends LinearOpMode {
                 } else if(timer.seconds()< 5){
                     //extend lift past high bar
                     lift.liftToPositionPIDClass(3000);
-                } else if (timer.seconds() < 6) {
+                } else if (timer.seconds() < 7) {
                     //pivot down to align lift hooks with high bar
-                    scoring.pivotToTargetPosition(0.8, -800);
+                    scoring.pivotToTargetPosition(0.8, -913);
                 } else if (timer.seconds()< 8){
                     //retract lift to hook onto high bar
                     lift.liftToPositionPIDClass(2000);
                 }else if (timer.seconds() < 10) {
                     //retract and pivot
                     lift.liftToPositionPIDClass(0);
-                    scoring.pivotToTargetPosition(0.8, 1100);
+                    scoring.pivotToTargetPosition(0.9, 1100);
                 } else if (timer.seconds() < 12) {
                     //pivot to get wheel over low bar
                     lift.liftToPositionPIDClass(0);
