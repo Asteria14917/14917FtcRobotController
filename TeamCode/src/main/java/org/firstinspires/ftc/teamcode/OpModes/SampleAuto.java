@@ -82,7 +82,7 @@ import org.firstinspires.ftc.teamcode.Subsystems.Scoring;
                         //robot.scoring.claw.setPosition(Scoring.CLAW_OPEN);
                         if(timer.seconds() > 1) {
                             currentState = org.firstinspires.ftc.teamcode.OpModes.SampleAuto.State.DUMP_SAMPLE;
-                            robot.drivetrain.setTargetPose(new Pose2D(DistanceUnit.INCH, 6, 11, AngleUnit.DEGREES, -45)); //10
+                            robot.drivetrain.setTargetPose(new Pose2D(DistanceUnit.INCH, 6, 9, AngleUnit.DEGREES, -45)); //103
                             robot.scoring.clawPivot.setPosition(Scoring.WRIST_OUT);
                            //15 and 10
                             //24
@@ -96,14 +96,17 @@ import org.firstinspires.ftc.teamcode.Subsystems.Scoring;
                             robot.lift.liftMode = Lift.LiftMode.HIGH_BASKET;
                         }
                         //put condition for switch at the beginning, condition can be based on time or completion of a task
-                        else if(timer.seconds() < 3) {
+                        else if(timer.seconds() < 3.1) {
                             robot.scoring.clawPivot.setPosition(Scoring.WRIST_IN);
                         }else if(timer.seconds() < 3.3) {
                             robot.scoring.claw.setPosition(Scoring.CLAW_OPEN);
                         }else if(timer.seconds() < 3.6) {
                             robot.scoring.clawPivot.setPosition(Scoring.WRIST_OUT);
-                        }else if(timer.seconds() < 3.8){
+                        }else if(timer.seconds() < 3.8) {
                             robot.lift.liftMode = Lift.LiftMode.RETRACTED;
+                            robot.scoring.clawPivot.setPosition(Scoring.WRIST_IN);
+                        }
+                            else if(timer.seconds()< 4){
 
                             //robot.scoring.claw.setPosition(Scoring.CLAW_CLOSED);
                             currentState = org.firstinspires.ftc.teamcode.OpModes.SampleAuto.State.GO_TO_BUCKET;
@@ -116,11 +119,11 @@ import org.firstinspires.ftc.teamcode.Subsystems.Scoring;
                        // robot.lift.liftMode = Lift.LiftMode.HIGH_BASKET;
                        robot.scoring.clawPivot.setPosition(Scoring.WRIST_MID);
                         robot.scoring.claw.setPosition(Scoring.CLAW_OPEN);
-                        if(timer.seconds() < 1) {
+                        if(timer.seconds() < 0.5) {
                           robot.scoring.claw.setPosition(Scoring.CLAW_CLOSED);
                             robot.scoring.clawPivot.setPosition(Scoring.WRIST_MID);
+                        }else if(timer.seconds() < 2 && score < 2){
                             score++;
-                        }else if(timer.seconds() < 1.5 && score < 2){
                             currentState = State.DRIVE_TO_BUCKET;
                             //robot.scoring.claw.setPosition(Scoring.CLAW_CLOSED);
                             timer.reset();

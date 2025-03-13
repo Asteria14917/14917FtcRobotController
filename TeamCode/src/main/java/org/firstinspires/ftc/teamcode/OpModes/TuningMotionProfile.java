@@ -9,12 +9,13 @@ import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.Pose2D;
 import org.firstinspires.ftc.teamcode.RobotHardware;
+import org.firstinspires.ftc.teamcode.Utility.TuningHardware;
 
-@Autonomous(name="TuningAuto", group="Linear OpMode")
+@Autonomous(name="TuningMotionProfile", group="Linear OpMode")
 @Config
-public class TuningAuto extends LinearOpMode {
+public class TuningMotionProfile extends LinearOpMode {
 
-    RobotHardware robot;
+    TuningHardware robot;
 
     ElapsedTime timer = new ElapsedTime();
 
@@ -33,18 +34,17 @@ public class TuningAuto extends LinearOpMode {
     State currentState = State.DRIVE_TO_TARGET;
 
     // Define our start pose
-     Pose2D startPose = new Pose2D(DistanceUnit.INCH, 0,0, AngleUnit.DEGREES,0);
+    Pose2D startPose = new Pose2D(DistanceUnit.INCH, 0,0, AngleUnit.DEGREES,0);
 
     // Define our target
     public static double targetX = 24;
     public static double targetY = 48;
     public static double targetHeading = 25;
     Pose2D targetPose = new Pose2D(DistanceUnit.INCH, targetX,targetY, AngleUnit.DEGREES, targetHeading);
-
     @Override
     public void runOpMode() {
         //calling constructor
-        robot = new RobotHardware(this);
+        robot = new TuningHardware(this);
 
 
         //calling init function
@@ -57,8 +57,7 @@ public class TuningAuto extends LinearOpMode {
         //robot.drivetrain.localizer.myOtos.setPosition(startPose);
 
         //Set the drivetrain's first target
-        robot.drivetrain.setTargetPose(targetPose);
-        timer.reset();
+        //robot.drivetrain.setTargetPose(startPose);
 
         // Wait for the game to start (driver presses START)
         telemetry.addData("Status", "Waiting for Start");
@@ -70,19 +69,25 @@ public class TuningAuto extends LinearOpMode {
             switch (currentState){
                 case DRIVE_TO_TARGET:
                     //put condition for switch at the beginning, condition can be based on time or completion of a task
-                    if(robot.drivetrain.targetReached || timer.seconds() > 1.2){
+                    robot.drivetrain.profiledDriveToPose(targetX, targetY, targetHeading);
+                    if(robot.drivetrain.targetReached){
                         currentState = State.IDLE_ONE;
                         timer.reset();
                     }
                     break;
                 case IDLE_ONE:
-                    if(timer.seconds() > 2.0){
+                    robot.drivetrain.leftBackDrive.setPower(0);
+                    robot.drivetrain.rightBackDrive.setPower(0);
+                    robot.drivetrain.rightFrontDrive.setPower(0);
+                    robot.drivetrain.leftFrontDrive.setPower(0);
+                    if(timer.seconds() > 0.5){
                         currentState = State.DRIVE_TO_START;
-                        robot.drivetrain.setTargetPose(startPose);
+                        //robot.drivetrain.setTargetPose(startPose);
                     }
                     break;
                 case DRIVE_TO_START:
-                    if(robot.drivetrain.targetReached || timer.seconds() > 1.2){
+                    robot.drivetrain.profiledDriveToPose(0, 0, 0);
+                    if(robot.drivetrain.targetReached){
                         currentState = State.IDLE_TWO;
                         timer.reset();
                     }
@@ -90,14 +95,14 @@ public class TuningAuto extends LinearOpMode {
                 case IDLE_TWO:
                     if(timer.seconds() > 2){
                         currentState = State.DRIVE_TO_TARGET;
-                        robot.drivetrain.setTargetPose(new Pose2D (DistanceUnit.INCH, targetX, targetY, AngleUnit.DEGREES,targetHeading));
+                       // robot.drivetrain.setTargetPose(new Pose2D (DistanceUnit.INCH, targetX, targetY, AngleUnit.DEGREES,targetHeading));
                     }
                     break;
             }
 
             // Anything outside of the switch statement will run independent of the currentState
-            // We update robot continuously in the background, regardless of state
-            robot.update();
+
+            robot.drivetrain.localizer.update();
 
             telemetry.addData("state", currentState);
             telemetry.update();
@@ -106,3 +111,4 @@ public class TuningAuto extends LinearOpMode {
     }
 
 }
+

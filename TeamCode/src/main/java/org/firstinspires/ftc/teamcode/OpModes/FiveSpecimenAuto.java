@@ -141,7 +141,7 @@ import org.firstinspires.ftc.teamcode.Subsystems.Scoring;
                         }else if(timer.seconds() < 1.9){ //1.9
                             robot.drivetrain.driveToTarget(new Pose2D(DistanceUnit.INCH, 53, -39-(specimennum*8.7), AngleUnit.DEGREES, 0));
                         }else if(timer.seconds() < 3.1){ //3.1
-                            robot.drivetrain.driveToTarget(new Pose2D(DistanceUnit.INCH, 8.1, -39-(specimennum*8.7), AngleUnit.DEGREES, 0));
+                            robot.drivetrain.driveToTarget(new Pose2D(DistanceUnit.INCH, 7.95, -39-(specimennum*8.7), AngleUnit.DEGREES, 0));
                         }else if(specimennum < 2){
                             timer.reset();
                             specimennum++;
@@ -163,7 +163,7 @@ import org.firstinspires.ftc.teamcode.Subsystems.Scoring;
                         robot.scoring.pivotMode = Scoring.PivotMode.OBSERVATION_ZONE;
                         robot.scoring.claw.setPosition(Scoring.CLAW_OPEN);//7.6
                         robot.lift.liftMode = Lift.LiftMode.RETRACTED;
-                        robot.drivetrain.driveToTarget(new Pose2D(DistanceUnit.INCH, 7.82, -40.5, AngleUnit.DEGREES, 0));//15//6.9
+                        robot.drivetrain.driveToTarget(new Pose2D(DistanceUnit.INCH, 8.1, -40.5, AngleUnit.DEGREES, 0));//15//6.9 //8.1
 
                         if(timer.seconds() < 1){ //1.5
                             //1.5
@@ -206,7 +206,7 @@ import org.firstinspires.ftc.teamcode.Subsystems.Scoring;
                         }
                         if(robot.drivetrain.targetReached || timer.seconds() > 1.4){//1.5
                             currentState = org.firstinspires.ftc.teamcode.OpModes.FiveSpecimenAuto.State.DRIVE_FORWARD;
-                            robot.drivetrain.setTargetPose(new Pose2D(DistanceUnit.INCH, 26.5, score*6, AngleUnit.DEGREES, 0)); //3.8
+                            robot.drivetrain.setTargetPose(new Pose2D(DistanceUnit.INCH, 26.5, score*6+5, AngleUnit.DEGREES, 0)); //3.8
                             timer.reset();
                             if(score < 4){
                                 score++;

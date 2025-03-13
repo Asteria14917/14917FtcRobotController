@@ -24,7 +24,7 @@ import com.qualcomm.robotcore.hardware.Servo;
         public static final double CLAW_CLOSED = 0.1;
         public static final int PIVOT_HIGH_BASKET = 1200; //600
         public static final int PIVOT_ZERO= 0;
-        public static final int PIVOT_SUBMERSIBLE = -1050;
+        public static final int PIVOT_SUBMERSIBLE = -1600;
         public static final double PIVOT_SPEED = 0.9;
         public static final int PIVOT_OBSERVATION_ZONE = 1620;//used to be -1300 //1580
         public static final int PIVOT_HIGH_CHAMBER = 284;
