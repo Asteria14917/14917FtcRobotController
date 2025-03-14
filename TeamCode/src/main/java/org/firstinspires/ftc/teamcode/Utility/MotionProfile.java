@@ -7,6 +7,7 @@ public class MotionProfile {
     ElapsedTime elapsedTime;
     double profileTime;
     double distance;
+    double direction;
     double max_acceleration;
     double max_velocity;
     public boolean profileComplete;
@@ -16,6 +17,12 @@ public class MotionProfile {
         max_acceleration = maxAccelerationIn;
         max_velocity = maxVelocityIn;
         distance = distanceIn;
+        if(distance < 0){
+            distance *= -1;
+            direction = -1;
+        }else{
+            direction = 1;
+        }
         profileTime = returnProfileDuration(max_acceleration,max_velocity,distance);
         elapsedTime.reset();
         profileComplete = false;
@@ -28,10 +35,7 @@ public class MotionProfile {
         }
 
         //Return the current reference position based on the given motion profile times, maximum acceleration, velocity, and current time.
-        if(distance < 0){
-            distance*=-1;
-            //direction = -1;
-        }
+
 
         // calculate the time it takes to accelerate to max velocity
         double acceleration_dt = max_velocity / max_acceleration;
@@ -59,13 +63,13 @@ public class MotionProfile {
         // check if we're still in the motion profile
         double entire_dt = acceleration_dt + cruise_dt + deacceleration_dt;
         if (elapsedTime.seconds() > entire_dt){
-            return distance;
+            return direction*distance;
         }
 
         // if we're accelerating
         if (elapsedTime.seconds() < acceleration_dt)
             // use the kinematic equation for acceleration
-            return 0.5 * max_acceleration * (elapsedTime.seconds() * elapsedTime.seconds());
+            return direction*0.5 * max_acceleration * (elapsedTime.seconds() * elapsedTime.seconds());
 
             // if we're cruising
         else if (elapsedTime.seconds() < deacceleration_time) {
@@ -73,7 +77,7 @@ public class MotionProfile {
             double cruise_current_dt = elapsedTime.seconds() - acceleration_dt;
 
             // use the kinematic equation for constant velocity
-            return (acceleration_distance + max_velocity * cruise_current_dt);
+            return direction*(acceleration_distance + max_velocity * cruise_current_dt);
         }
 
         // if we're decelerating
@@ -83,18 +87,12 @@ public class MotionProfile {
             deacceleration_time = elapsedTime.seconds() - deacceleration_time;
 
             // use the kinematic equations to calculate the instantaneous desired position
-            return (acceleration_distance + cruise_distance + max_velocity * deacceleration_time - 0.5 * max_acceleration * (deacceleration_time * deacceleration_time));
+            return direction*(acceleration_distance + cruise_distance + max_velocity * deacceleration_time - 0.5 * max_acceleration * (deacceleration_time * deacceleration_time));
         }
     }
 
     //returns the duration of the motion profile
     public static double returnProfileDuration(double max_acceleration, double max_velocity, double distance) {
-
-        //Return the current reference position based on the given motion profile times, maximum acceleration, velocity, and current time.
-        if(distance < 0){
-            distance*=-1;
-            //direction = -1;
-        }
 
         // calculate the time it takes to accelerate to max velocity
         double acceleration_dt = max_velocity / max_acceleration;
@@ -123,6 +121,4 @@ public class MotionProfile {
         double entire_dt = acceleration_dt + cruise_dt + deacceleration_dt;
         return entire_dt;
     }
-
-
 }

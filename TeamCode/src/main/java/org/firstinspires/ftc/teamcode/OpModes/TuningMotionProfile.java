@@ -38,21 +38,20 @@ public class TuningMotionProfile extends LinearOpMode {
 
     // Define our target
     public static double targetX = 24;
-    public static double targetY = 48;
-    public static double targetHeading = 25;
-    Pose2D targetPose = new Pose2D(DistanceUnit.INCH, targetX,targetY, AngleUnit.DEGREES, targetHeading);
+    public static double targetY = 0;
+    public static double targetHeading = 0;
+
     @Override
     public void runOpMode() {
         //calling constructor
         robot = new TuningHardware(this);
-
 
         //calling init function
         robot.init();
 
         //TODO Pass starting pose to localizer
         //for Gobilda it looks like this
-        robot.drivetrain.localizer.odo.setPosition(startPose);
+        //robot.drivetrain.localizer.odo.setPosition(startPose);
         //for sparkfun it looks like this
         //robot.drivetrain.localizer.myOtos.setPosition(startPose);
 
@@ -68,46 +67,41 @@ public class TuningMotionProfile extends LinearOpMode {
         while (opModeIsActive() && !isStopRequested()) {
             switch (currentState){
                 case DRIVE_TO_TARGET:
-                    //put condition for switch at the beginning, condition can be based on time or completion of a task
-                    robot.drivetrain.profiledDriveToPose(targetX, targetY, targetHeading);
+                    robot.drivetrain.profiledDriveToTarget(targetX, targetY, targetHeading);
                     if(robot.drivetrain.targetReached){
-                        currentState = State.IDLE_ONE;
-                        timer.reset();
+                        setState(State.IDLE_ONE);
                     }
                     break;
                 case IDLE_ONE:
-                    robot.drivetrain.leftBackDrive.setPower(0);
-                    robot.drivetrain.rightBackDrive.setPower(0);
-                    robot.drivetrain.rightFrontDrive.setPower(0);
-                    robot.drivetrain.leftFrontDrive.setPower(0);
-                    if(timer.seconds() > 0.5){
-                        currentState = State.DRIVE_TO_START;
-                        //robot.drivetrain.setTargetPose(startPose);
+                    if(timer.seconds() > 2){
+                        setState(State.DRIVE_TO_START);
                     }
                     break;
                 case DRIVE_TO_START:
-                    robot.drivetrain.profiledDriveToPose(0, 0, 0);
+                    robot.drivetrain.profiledDriveToTarget(0, 0, 0);
                     if(robot.drivetrain.targetReached){
-                        currentState = State.IDLE_TWO;
-                        timer.reset();
+                        setState(State.IDLE_TWO);
                     }
                     break;
                 case IDLE_TWO:
                     if(timer.seconds() > 2){
-                        currentState = State.DRIVE_TO_TARGET;
-                       // robot.drivetrain.setTargetPose(new Pose2D (DistanceUnit.INCH, targetX, targetY, AngleUnit.DEGREES,targetHeading));
+                        setState(State.DRIVE_TO_TARGET);
                     }
                     break;
             }
 
             // Anything outside of the switch statement will run independent of the currentState
 
-            robot.drivetrain.localizer.update();
+            robot.update();
 
             telemetry.addData("state", currentState);
             telemetry.update();
-
         }
+    }
+
+    void setState(State state){
+        currentState = state;
+        timer.reset();
     }
 
 }

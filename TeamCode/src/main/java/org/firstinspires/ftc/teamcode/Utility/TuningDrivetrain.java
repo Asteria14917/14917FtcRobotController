@@ -8,6 +8,7 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.Pose2D;
+import org.firstinspires.ftc.teamcode.Subsystems.Lift;
 
 import java.util.Locale;
 @Config
@@ -26,14 +27,11 @@ public class TuningDrivetrain {
     PIDController xController;
     PIDController yController;
     PIDController headingController;
-    public boolean targetReached = false;
 
-    MotionProfile xProfile;
-    MotionProfile yProfile;
-    MotionProfile headingProfile;
-
+    MotionProfile2D motionProfile;
 
     Pose2D targetPose;
+    public boolean targetReached = false;
 
     public static double HEADING_KP = 0.015;
     public static double HEADING_KI = 0.0;
@@ -42,11 +40,22 @@ public class TuningDrivetrain {
     public static double DRIVE_KI = 0.0;
     public static double DRIVE_KD = 0;//0.0003;
     public static double DRIVE_MAX_OUT = 0.7;//0.0003;
+    public static double STRAFE_MULTIPLIER = 2;
+
     public static double DRIVE_MAX_ACC = 72;
     public static double DRIVE_MAX_VEL = 72;
     public static double HEADING_MAX_ACC = 100;
     public static double HEADING_MAX_VEL = 100;
-    public static double STRAFE_MULTIPLIER = 2;
+
+    //if the subsystem has explicit states, it can be helpful to use an enum to define them
+    public enum DrivetrainMode {
+        MANUAL,
+        AUTO,
+        PROFILE,
+        IDLE,
+    }
+
+    public TuningDrivetrain.DrivetrainMode drivetrainMode = TuningDrivetrain.DrivetrainMode.MANUAL;
 
     public TuningDrivetrain(LinearOpMode opmode) {
         myOpMode = opmode;
@@ -57,6 +66,11 @@ public class TuningDrivetrain {
         xController = new PIDController(DRIVE_KP, DRIVE_KI, DRIVE_KD, DRIVE_MAX_OUT);
         yController = new PIDController(DRIVE_KP, DRIVE_KI, DRIVE_KD, DRIVE_MAX_OUT);
         headingController = new PIDController(HEADING_KP, HEADING_KI, HEADING_KD, DRIVE_MAX_OUT);
+
+        motionProfile = new MotionProfile2D(0,0,0,0,DRIVE_MAX_VEL,DRIVE_MAX_ACC);
+
+        targetPose = new Pose2D(DistanceUnit.INCH,0,0,AngleUnit.DEGREES,0);
+        targetReached = true;
 
         localizer = new PinPointLocalizer(myOpMode);
         localizer.init();
@@ -78,17 +92,9 @@ public class TuningDrivetrain {
         rightBackDrive.setDirection(DcMotor.Direction.FORWARD);
 
         resetEncoders();
-        useEncoders();
+        runWithoutEncoders();
 
         myOpMode.telemetry.addData(">", "Drivetrain Initialized");
-
-
-        xProfile = new MotionProfile(DRIVE_MAX_ACC,DRIVE_MAX_VEL, 0);
-        yProfile = new MotionProfile(DRIVE_MAX_ACC,DRIVE_MAX_VEL, 0);
-        headingProfile = new MotionProfile(HEADING_MAX_ACC,HEADING_MAX_VEL,0);
-
-        targetPose = new Pose2D(DistanceUnit.INCH,0,0,AngleUnit.DEGREES,0);
-
     }
 
     public void resetEncoders() {
@@ -98,13 +104,13 @@ public class TuningDrivetrain {
         leftBackDrive.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
     }
 
-    public void useEncoders() {
+    public void runWithoutEncoders() {
         leftFrontDrive.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         rightBackDrive.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         rightFrontDrive.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         leftBackDrive.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
     }
-
+    /*
     public void profiledDriveToPose(double xTarget, double yTarget, double degreeTarget) {
 
         //check if the target pose is new
@@ -153,13 +159,40 @@ public class TuningDrivetrain {
         myOpMode.telemetry.addData("targetReached", targetReached);
     }
 
+     */
+
+    public void profiledDriveToTarget(double xTarget, double yTarget, double degreeTarget) {
+        //check if the target pose is new
+        if(targetPose.getX(DistanceUnit.INCH) != xTarget ||
+                targetPose.getY(DistanceUnit.INCH) != yTarget ||
+                targetPose.getHeading(AngleUnit.DEGREES) != degreeTarget){
+
+            drivetrainMode = DrivetrainMode.PROFILE;
+
+            //if target is new, calculate motion profile time and reset timer, and store original distance
+            targetPose = new Pose2D(DistanceUnit.INCH, xTarget,yTarget,AngleUnit.DEGREES,degreeTarget);
+            targetReached = false;
+
+            motionProfile = new MotionProfile2D(localizer.getX(), localizer.getY(), xTarget,yTarget,DRIVE_MAX_VEL,DRIVE_MAX_ACC);
+        }
+
+    }
+
     public void setTargetPose(Pose2D newTarget){
         targetPose = newTarget;
         targetReached = false;
     }
 
-    public void driveToTarget(Pose2D newTarget){
-        targetPose = newTarget;
+    public void driveToTarget(double xTarget, double yTarget, double degreeTarget){
+        if(targetPose.getX(DistanceUnit.INCH) != xTarget ||
+                targetPose.getY(DistanceUnit.INCH) != yTarget ||
+                targetPose.getHeading(AngleUnit.DEGREES) != degreeTarget) {
+
+            drivetrainMode = DrivetrainMode.AUTO;
+
+            targetPose = new Pose2D(DistanceUnit.INCH, xTarget, yTarget, AngleUnit.DEGREES, degreeTarget);
+            targetReached = false;
+        }
     }
 
     public double angleWrap(double degrees) {
@@ -177,36 +210,131 @@ public class TuningDrivetrain {
 
     public void update(){
         localizer.update();
-        //Use PIDs to calculate motor powers based on error to targets
-        double xPower = xController.calculate(targetPose.getX(DistanceUnit.INCH), localizer.getX());
-        double yPower = yController.calculate(targetPose.getY(DistanceUnit.INCH), localizer.getY());
 
-        double wrappedAngleError = angleWrap(targetPose.getHeading(AngleUnit.DEGREES) - localizer.getHeading());
-        double tPower = headingController.calculate(wrappedAngleError);
+        if(drivetrainMode == DrivetrainMode.MANUAL){
+            //drive train
+            double max;
 
-        double radianHeading = Math.toRadians(localizer.getHeading());
+            double leftFrontPower;
+            double rightFrontPower;
+            double leftBackPower;
+            double rightBackPower;
 
-        //rotate the motor powers based on robot heading
-        double xPower_rotated = xPower * Math.cos(-radianHeading) - yPower * Math.sin(-radianHeading);
-        double yPower_rotated = xPower * Math.sin(-radianHeading) + yPower * Math.cos(-radianHeading);
+            double drive = -myOpMode.gamepad1.left_stick_y;
+            double turn = myOpMode.gamepad1.right_stick_x;
+            double strafe = -myOpMode.gamepad1.left_stick_x;
 
-        // x, y, theta input mixing to deliver motor powers
-        leftFrontDrive.setPower(xPower_rotated - yPower_rotated*STRAFE_MULTIPLIER - tPower);
-        leftBackDrive.setPower(xPower_rotated + yPower_rotated*STRAFE_MULTIPLIER - tPower);
-        rightFrontDrive.setPower(xPower_rotated + yPower_rotated*STRAFE_MULTIPLIER + tPower);
-        rightBackDrive.setPower(xPower_rotated - yPower_rotated*STRAFE_MULTIPLIER + tPower);
+            leftFrontPower = (drive + turn - strafe);
+            rightFrontPower = (drive - turn + strafe);
+            leftBackPower = (drive + turn + strafe);
+            rightBackPower = (drive - turn - strafe);
 
-        //check if drivetrain is still working towards target
-        targetReached = (xController.targetReached && yController.targetReached && headingController.targetReached);
-        String data = String.format(Locale.US, "{tX: %.3f, tY: %.3f, tH: %.3f}", targetPose.getX(DistanceUnit.INCH), targetPose.getY(DistanceUnit.INCH), targetPose.getHeading(AngleUnit.DEGREES));
+            // Normalize the values so no wheel power exceeds 100%
+            // This ensures that the robot maintains the desired motion.
+            max = Math.max(Math.abs(leftFrontPower), Math.abs(rightFrontPower));
+            max = Math.max(max, Math.abs(leftBackPower));
+            max = Math.max(max, Math.abs(rightBackPower));
 
-        myOpMode.telemetry.addData("Target Position", data);
-        myOpMode.telemetry.addData("XReached", xController.targetReached);
-        myOpMode.telemetry.addData("YReached", yController.targetReached);
-        myOpMode.telemetry.addData("HReached", headingController.targetReached);
-        myOpMode.telemetry.addData("targetReached", targetReached);
-        myOpMode.telemetry.addData("xPower", xPower);
-        myOpMode.telemetry.addData("xPowerRotated", xPower_rotated);
+            if (max > 1.0) {
+                leftFrontPower /= max;
+                rightFrontPower /= max;
+                leftBackPower /= max;
+                rightBackPower /= max;
+            }
+
+            //Slow and Turbo Buttons
+            if (myOpMode.gamepad1.right_bumper) {
+                leftFrontDrive.setPower(leftFrontPower);
+                rightFrontDrive.setPower(rightFrontPower);
+                leftBackDrive.setPower(leftBackPower);
+                rightBackDrive.setPower(rightBackPower);
+            } else if (myOpMode.gamepad1.left_bumper) {
+                leftFrontDrive.setPower(leftFrontPower / 7);
+                rightFrontDrive.setPower(rightFrontPower / 7);
+                leftBackDrive.setPower(leftBackPower / 7);
+                rightBackDrive.setPower(rightBackPower / 7);
+            } else {
+                leftFrontDrive.setPower(leftFrontPower / 2);
+                rightFrontDrive.setPower(rightFrontPower / 2);
+                leftBackDrive.setPower(leftBackPower / 2);
+                rightBackDrive.setPower(rightBackPower / 2);
+            }
+        } else if(drivetrainMode == DrivetrainMode.AUTO) {
+            //Use PIDs to calculate motor powers based on error to targets
+            double xPower = xController.calculate(targetPose.getX(DistanceUnit.INCH), localizer.getX());
+            double yPower = yController.calculate(targetPose.getY(DistanceUnit.INCH), localizer.getY());
+
+            double wrappedAngleError = angleWrap(targetPose.getHeading(AngleUnit.DEGREES) - localizer.getHeading());
+            double tPower = headingController.calculate(wrappedAngleError);
+
+            double radianHeading = Math.toRadians(localizer.getHeading());
+
+            //rotate the motor powers based on robot heading
+            double xPower_rotated = xPower * Math.cos(-radianHeading) - yPower * Math.sin(-radianHeading);
+            double yPower_rotated = xPower * Math.sin(-radianHeading) + yPower * Math.cos(-radianHeading);
+
+            // x, y, theta input mixing to deliver motor powers
+            leftFrontDrive.setPower(xPower_rotated - yPower_rotated * STRAFE_MULTIPLIER - tPower);
+            leftBackDrive.setPower(xPower_rotated + yPower_rotated * STRAFE_MULTIPLIER - tPower);
+            rightFrontDrive.setPower(xPower_rotated + yPower_rotated * STRAFE_MULTIPLIER + tPower);
+            rightBackDrive.setPower(xPower_rotated - yPower_rotated * STRAFE_MULTIPLIER + tPower);
+
+            //TODO Create a function that checks if target is reached based on target pose and current position
+            //check if drivetrain is still working towards target
+            targetReached = (xController.targetReached && yController.targetReached && headingController.targetReached);
+            String data = String.format(Locale.US, "{tX: %.3f, tY: %.3f, tH: %.3f}", targetPose.getX(DistanceUnit.INCH), targetPose.getY(DistanceUnit.INCH), targetPose.getHeading(AngleUnit.DEGREES));
+
+            myOpMode.telemetry.addData("Target Position", data);
+            myOpMode.telemetry.addData("XReached", xController.targetReached);
+            myOpMode.telemetry.addData("YReached", yController.targetReached);
+            myOpMode.telemetry.addData("HReached", headingController.targetReached);
+            myOpMode.telemetry.addData("targetReached", targetReached);
+            myOpMode.telemetry.addData("xPower", xPower);
+            myOpMode.telemetry.addData("xPowerRotated", xPower_rotated);
+        }else if(drivetrainMode == DrivetrainMode.PROFILE){
+            //double thetaTarget = Math.toRadians(degreeTarget);
+            //Use PIDs to calculate motor powers based on error to targets
+            double[]instantTarget = motionProfile.getTargetPosition();
+            double instantX = instantTarget[0];
+            double instantY = instantTarget[1];
+
+            double xPower = xController.calculate(instantX, localizer.getX());
+            double yPower = yController.calculate(instantY, localizer.getY());
+
+            double wrappedAngleError = angleWrap(targetPose.getHeading(AngleUnit.DEGREES) - localizer.getHeading());
+            double tPower = headingController.calculate(wrappedAngleError);
+
+            double radianHeading = Math.toRadians(localizer.getHeading());
+
+            //rotate the motor powers based on robot heading
+            double xPower_rotated = xPower * Math.cos(-radianHeading) - yPower * Math.sin(-radianHeading);
+            double yPower_rotated = xPower * Math.sin(-radianHeading) + yPower * Math.cos(-radianHeading);
+
+            // x, y, theta input mixing to deliver motor powers
+            leftFrontDrive.setPower(xPower_rotated - yPower_rotated - tPower);
+            leftBackDrive.setPower(xPower_rotated + yPower_rotated - tPower);
+            rightFrontDrive.setPower(xPower_rotated + yPower_rotated + tPower);
+            rightBackDrive.setPower(xPower_rotated - yPower_rotated + tPower);
+
+            //check if drivetrain is still working towards target
+            targetReached = motionProfile.profileComplete() && headingController.targetReached;
+
+            if(targetReached){
+                drivetrainMode = DrivetrainMode.AUTO;
+            }
+
+            String data = String.format(Locale.US, "{tX: %.3f, tY: %.3f, tH: %.3f}", targetPose.getX(DistanceUnit.INCH), targetPose.getY(DistanceUnit.INCH), targetPose.getHeading(AngleUnit.DEGREES));
+
+            myOpMode.telemetry.addData("Target Position", data);
+            myOpMode.telemetry.addData("Current X", localizer.getX());
+            myOpMode.telemetry.addData("Current Y", localizer.getY());
+            myOpMode.telemetry.addData("Instant X", instantX);
+            myOpMode.telemetry.addData("Instant Y", instantY);
+            myOpMode.telemetry.addData("ProfileTime", motionProfile.timeElapsed.seconds());
+            myOpMode.telemetry.addData("ProfileComplete", motionProfile.profileComplete());
+            myOpMode.telemetry.addData("HReached", headingController.targetReached);
+            myOpMode.telemetry.addData("targetReached", targetReached);
+        }
 
     }
 
