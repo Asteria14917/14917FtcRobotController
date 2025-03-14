@@ -1,10 +1,12 @@
 package org.firstinspires.ftc.teamcode.OpModes;
 
+import com.acmerobotics.dashboard.FtcDashboard;
 import com.acmerobotics.dashboard.config.Config;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
+import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.Pose2D;
@@ -73,6 +75,7 @@ public class TuningMotionProfile extends LinearOpMode {
                     }
                     break;
                 case IDLE_ONE:
+                    robot.drivetrain.profiledDriveToTarget(targetX, targetY, targetHeading);
                     if(timer.seconds() > 2){
                         setState(State.DRIVE_TO_START);
                     }
@@ -84,6 +87,7 @@ public class TuningMotionProfile extends LinearOpMode {
                     }
                     break;
                 case IDLE_TWO:
+                    robot.drivetrain.profiledDriveToTarget(0, 0, 0);
                     if(timer.seconds() > 2){
                         setState(State.DRIVE_TO_TARGET);
                     }

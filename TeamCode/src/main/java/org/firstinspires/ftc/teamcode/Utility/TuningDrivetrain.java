@@ -1,10 +1,12 @@
 package org.firstinspires.ftc.teamcode.Utility;
 
+import com.acmerobotics.dashboard.FtcDashboard;
 import com.acmerobotics.dashboard.config.Config;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
+import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.Pose2D;
@@ -42,10 +44,13 @@ public class TuningDrivetrain {
     public static double DRIVE_MAX_OUT = 0.7;//0.0003;
     public static double STRAFE_MULTIPLIER = 2;
 
-    public static double DRIVE_MAX_ACC = 72;
-    public static double DRIVE_MAX_VEL = 72;
+    public static double DRIVE_MAX_ACC = 52;
+    public static double DRIVE_MAX_VEL = 52;
     public static double HEADING_MAX_ACC = 100;
     public static double HEADING_MAX_VEL = 100;
+
+    double instantX = 0;
+    double instantY = 0;
 
     //if the subsystem has explicit states, it can be helpful to use an enum to define them
     public enum DrivetrainMode {
@@ -172,7 +177,7 @@ public class TuningDrivetrain {
             //if target is new, calculate motion profile time and reset timer, and store original distance
             targetPose = new Pose2D(DistanceUnit.INCH, xTarget,yTarget,AngleUnit.DEGREES,degreeTarget);
             targetReached = false;
-
+            //TODO consider creating profile from last target position, in case robot does not make it to target
             motionProfile = new MotionProfile2D(localizer.getX(), localizer.getY(), xTarget,yTarget,DRIVE_MAX_VEL,DRIVE_MAX_ACC);
         }
 
@@ -210,6 +215,10 @@ public class TuningDrivetrain {
 
     public void update(){
         localizer.update();
+
+        xController = new PIDController(DRIVE_KP, DRIVE_KI, DRIVE_KD, DRIVE_MAX_OUT);
+        yController = new PIDController(DRIVE_KP, DRIVE_KI, DRIVE_KD, DRIVE_MAX_OUT);
+        headingController = new PIDController(HEADING_KP, HEADING_KI, HEADING_KD, DRIVE_MAX_OUT);
 
         if(drivetrainMode == DrivetrainMode.MANUAL){
             //drive train
@@ -295,8 +304,8 @@ public class TuningDrivetrain {
             //double thetaTarget = Math.toRadians(degreeTarget);
             //Use PIDs to calculate motor powers based on error to targets
             double[]instantTarget = motionProfile.getTargetPosition();
-            double instantX = instantTarget[0];
-            double instantY = instantTarget[1];
+            instantX = instantTarget[0];
+            instantY = instantTarget[1];
 
             double xPower = xController.calculate(instantX, localizer.getX());
             double yPower = yController.calculate(instantY, localizer.getY());
@@ -320,21 +329,31 @@ public class TuningDrivetrain {
             targetReached = motionProfile.profileComplete() && headingController.targetReached;
 
             if(targetReached){
-                drivetrainMode = DrivetrainMode.AUTO;
+                //drivetrainMode = DrivetrainMode.AUTO;
             }
 
             String data = String.format(Locale.US, "{tX: %.3f, tY: %.3f, tH: %.3f}", targetPose.getX(DistanceUnit.INCH), targetPose.getY(DistanceUnit.INCH), targetPose.getHeading(AngleUnit.DEGREES));
 
             myOpMode.telemetry.addData("Target Position", data);
             myOpMode.telemetry.addData("Current X", localizer.getX());
-            myOpMode.telemetry.addData("Current Y", localizer.getY());
             myOpMode.telemetry.addData("Instant X", instantX);
-            myOpMode.telemetry.addData("Instant Y", instantY);
-            myOpMode.telemetry.addData("ProfileTime", motionProfile.timeElapsed.seconds());
+            myOpMode.telemetry.addData("ProfileElapsedTime", motionProfile.timeElapsed);
+            myOpMode.telemetry.addData("ProfileTotalTime", motionProfile.totalTime);
+            myOpMode.telemetry.addData("ProfileTotalDistance", motionProfile.totalDistance);
             myOpMode.telemetry.addData("ProfileComplete", motionProfile.profileComplete());
+            myOpMode.telemetry.addData("ProfilePhase", motionProfile.phase);
             myOpMode.telemetry.addData("HReached", headingController.targetReached);
             myOpMode.telemetry.addData("targetReached", targetReached);
         }
+
+        FtcDashboard dashboard = FtcDashboard.getInstance();
+        Telemetry dashboardTelemetry = dashboard.getTelemetry();
+
+        dashboardTelemetry.addData("instantX", instantX);
+        dashboardTelemetry.addData("instantY", instantY);
+        dashboardTelemetry.addData("currentX", localizer.getX());
+        dashboardTelemetry.addData("currentY", localizer.getY());
+        dashboardTelemetry.update();
 
     }
 
