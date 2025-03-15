@@ -30,7 +30,7 @@ public class TuningDrivetrain {
     PIDController yController;
     PIDController headingController;
 
-    MotionProfile2D motionProfile;
+    MotionProfileRedux motionProfile;
 
     Pose2D targetPose;
     public boolean targetReached = false;
@@ -72,7 +72,7 @@ public class TuningDrivetrain {
         yController = new PIDController(DRIVE_KP, DRIVE_KI, DRIVE_KD, DRIVE_MAX_OUT);
         headingController = new PIDController(HEADING_KP, HEADING_KI, HEADING_KD, DRIVE_MAX_OUT);
 
-        motionProfile = new MotionProfile2D(0,0,0,0,DRIVE_MAX_VEL,DRIVE_MAX_ACC);
+        motionProfile = new MotionProfileRedux(0,0,0,0,DRIVE_MAX_VEL,DRIVE_MAX_ACC);
 
         targetPose = new Pose2D(DistanceUnit.INCH,0,0,AngleUnit.DEGREES,0);
         targetReached = true;
@@ -178,7 +178,7 @@ public class TuningDrivetrain {
             targetPose = new Pose2D(DistanceUnit.INCH, xTarget,yTarget,AngleUnit.DEGREES,degreeTarget);
             targetReached = false;
             //TODO consider creating profile from last target position, in case robot does not make it to target
-            motionProfile = new MotionProfile2D(localizer.getX(), localizer.getY(), xTarget,yTarget,DRIVE_MAX_VEL,DRIVE_MAX_ACC);
+            motionProfile = new MotionProfileRedux(localizer.getX(), localizer.getY(), xTarget,yTarget,DRIVE_MAX_VEL,DRIVE_MAX_ACC);
         }
 
     }
@@ -216,9 +216,9 @@ public class TuningDrivetrain {
     public void update(){
         localizer.update();
 
-        xController = new PIDController(DRIVE_KP, DRIVE_KI, DRIVE_KD, DRIVE_MAX_OUT);
-        yController = new PIDController(DRIVE_KP, DRIVE_KI, DRIVE_KD, DRIVE_MAX_OUT);
-        headingController = new PIDController(HEADING_KP, HEADING_KI, HEADING_KD, DRIVE_MAX_OUT);
+        xController.setGains(DRIVE_KP, DRIVE_KI, DRIVE_KD, DRIVE_MAX_OUT);
+        yController.setGains(DRIVE_KP, DRIVE_KI, DRIVE_KD, DRIVE_MAX_OUT);
+        headingController.setGains(HEADING_KP, HEADING_KI, HEADING_KD, DRIVE_MAX_OUT);
 
         if(drivetrainMode == DrivetrainMode.MANUAL){
             //drive train
@@ -337,6 +337,7 @@ public class TuningDrivetrain {
             myOpMode.telemetry.addData("Target Position", data);
             myOpMode.telemetry.addData("Current X", localizer.getX());
             myOpMode.telemetry.addData("Instant X", instantX);
+            myOpMode.telemetry.addData("ProfileTimeToMaxVelocity", motionProfile.timeToMaxVelocity);
             myOpMode.telemetry.addData("ProfileElapsedTime", motionProfile.timeElapsed);
             myOpMode.telemetry.addData("ProfileTotalTime", motionProfile.totalTime);
             myOpMode.telemetry.addData("ProfileTotalDistance", motionProfile.totalDistance);

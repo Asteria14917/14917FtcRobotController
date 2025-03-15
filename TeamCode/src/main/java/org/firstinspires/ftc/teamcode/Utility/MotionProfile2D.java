@@ -1,6 +1,9 @@
 package org.firstinspires.ftc.teamcode.Utility;
 
+import com.acmerobotics.dashboard.FtcDashboard;
 import com.qualcomm.robotcore.util.ElapsedTime;
+
+import org.firstinspires.ftc.robotcore.external.Telemetry;
 
 public class MotionProfile2D {
     private double startX, startY, targetX, targetY;
@@ -34,7 +37,7 @@ public class MotionProfile2D {
             isTriangular = true;
             maxVelocity = Math.sqrt(2 * maxAcceleration * (totalDistance / 2));
             timeToMaxVelocity = maxVelocity / maxAcceleration;
-            //distanceToMaxVelocity = (maxVelocity * maxVelocity) / (2 * maxAcceleration); // Recalculate correctly
+            distanceToMaxVelocity = (maxVelocity * maxVelocity) / (2 * maxAcceleration); // Recalculate correctly
             cruiseDistance = 0;
             cruiseTime = 0;
         } else {
@@ -46,14 +49,16 @@ public class MotionProfile2D {
             cruiseTime = cruiseDistance / maxVelocity;
         }
 
-
-
         totalTime = 2 * timeToMaxVelocity + cruiseTime;
         timeElapsed = new ElapsedTime();
         timeElapsed.reset();
     }
 
     public double[] getTargetPosition() {
+
+        FtcDashboard dashboard = FtcDashboard.getInstance();
+        Telemetry dashboardTelemetry = dashboard.getTelemetry();
+
         if (totalDistance == 0) {
             return new double[]{startX, startY}; // Already at target
         }
@@ -61,7 +66,7 @@ public class MotionProfile2D {
         double elapsedTime = timeElapsed.seconds(); // Store time once
         double progress = 0;
 
-        if (isTriangular) {
+        /*if (isTriangular) {
             // Triangular motion profile (only acceleration and deceleration)
             if (elapsedTime < timeToMaxVelocity) {
                 // Acceleration phase
@@ -71,13 +76,16 @@ public class MotionProfile2D {
                 // Deceleration phase
                 phase = "TRI_DECEL";
                 double decelTime = elapsedTime - timeToMaxVelocity;
-                progress = (totalDistance / 2) + (maxVelocity * decelTime) - (0.5 * maxAcceleration * Math.pow(decelTime, 2));
+                dashboardTelemetry.addData("ProfileDecelTime", decelTime);
+                progress = (totalDistance / 2) + ((maxVelocity * decelTime) - (0.5 * maxAcceleration * Math.pow(decelTime, 2)));
             } else {
                 phase = "TRI_REACHED";
                 // Target reached
                 progress = totalDistance;
             }
         } else {
+
+         */
             // Standard trapezoidal profile
             if (elapsedTime < timeToMaxVelocity) {
                 // Acceleration phase
@@ -97,10 +105,12 @@ public class MotionProfile2D {
                 phase = "TRAP_REACHED";
                 progress = totalDistance;
             }
-        }
+
 
         // Prevent overshooting
         progress = Math.min(progress, totalDistance);
+
+        dashboardTelemetry.addData("ProfileProgress", progress);
 
         // Scale progress to (x, y)
         double ratio = progress / totalDistance;
@@ -110,6 +120,6 @@ public class MotionProfile2D {
     }
 
     boolean profileComplete() {
-        return timeElapsed.seconds() >= totalTime + 0.2;
+        return timeElapsed.seconds() >= totalTime + 1.0;
     }
 }
