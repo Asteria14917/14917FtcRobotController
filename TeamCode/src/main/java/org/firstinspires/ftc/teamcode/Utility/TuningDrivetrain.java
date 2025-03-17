@@ -5,6 +5,7 @@ import com.acmerobotics.dashboard.config.Config;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.util.ElapsedTime;
+import com.qualcomm.robotcore.util.Range;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
@@ -43,6 +44,9 @@ public class TuningDrivetrain {
     public static double DRIVE_KD = 0;//0.0003;
     public static double DRIVE_MAX_OUT = 0.7;//0.0003;
     public static double STRAFE_MULTIPLIER = 2;
+
+    //feedforward constant for deceleration
+    public static double DRIVE_KF = 0.0;
 
     public static double DRIVE_MAX_ACC = 52;
     public static double DRIVE_MAX_VEL = 52;
@@ -115,56 +119,6 @@ public class TuningDrivetrain {
         rightFrontDrive.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         leftBackDrive.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
     }
-    /*
-    public void profiledDriveToPose(double xTarget, double yTarget, double degreeTarget) {
-
-        //check if the target pose is new
-        if(targetPose.getX(DistanceUnit.INCH) != xTarget ||
-                targetPose.getY(DistanceUnit.INCH) != yTarget ||
-                targetPose.getHeading(AngleUnit.DEGREES) != degreeTarget){
-
-            //if target is new, calculate motion profile time and reset timer, and store original distance
-            targetPose = new Pose2D(DistanceUnit.INCH, xTarget,yTarget,AngleUnit.DEGREES,degreeTarget);
-            xProfile = new MotionProfile(DRIVE_MAX_ACC,DRIVE_MAX_VEL,xTarget-localizer.getX());
-            yProfile = new MotionProfile(DRIVE_MAX_ACC,DRIVE_MAX_VEL,yTarget-localizer.getY());
-            headingProfile = new MotionProfile(HEADING_MAX_ACC,HEADING_MAX_VEL,angleWrap(degreeTarget - localizer.getHeading()));
-        }
-
-
-        //check if drivetrain is still working towards target
-        targetReached = xProfile.profileComplete && yProfile.profileComplete && headingController.targetReached;
-        //double thetaTarget = Math.toRadians(degreeTarget);
-        //Use PIDs to calculate motor powers based on error to targets
-        double xPower = xController.calculate(xProfile.returnInstantTarget(), localizer.getX());
-        double yPower = yController.calculate(yProfile.returnInstantTarget(), localizer.getY());
-
-        double wrappedAngleError = angleWrap(degreeTarget - localizer.getHeading());
-        double tPower = headingController.calculate(wrappedAngleError);
-
-        double radianHeading = Math.toRadians(localizer.getHeading());
-
-        //rotate the motor powers based on robot heading
-        double xPower_rotated = xPower * Math.cos(-radianHeading) - yPower * Math.sin(-radianHeading);
-        double yPower_rotated = xPower * Math.sin(-radianHeading) + yPower * Math.cos(-radianHeading);
-
-        // x, y, theta input mixing to deliver motor powers
-        leftFrontDrive.setPower(xPower_rotated - yPower_rotated - tPower);
-        leftBackDrive.setPower(xPower_rotated + yPower_rotated - tPower);
-        rightFrontDrive.setPower(xPower_rotated + yPower_rotated + tPower);
-        rightBackDrive.setPower(xPower_rotated - yPower_rotated + tPower);
-
-        String data = String.format(Locale.US, "{tX: %.3f, tY: %.3f, tH: %.3f}", targetPose.getX(DistanceUnit.INCH), targetPose.getY(DistanceUnit.INCH), targetPose.getHeading(AngleUnit.DEGREES));
-
-        myOpMode.telemetry.addData("Target Position", data);
-        myOpMode.telemetry.addData("XReached", xProfile.profileComplete);
-        myOpMode.telemetry.addData("XTime", xProfile.profileTime);
-        myOpMode.telemetry.addData("YReached", yProfile.profileComplete);
-        myOpMode.telemetry.addData("YTime", yProfile.profileTime);
-        myOpMode.telemetry.addData("HReached", headingController.targetReached);
-        myOpMode.telemetry.addData("targetReached", targetReached);
-    }
-
-     */
 
     public void profiledDriveToTarget(double xTarget, double yTarget, double degreeTarget) {
         //check if the target pose is new
@@ -219,6 +173,7 @@ public class TuningDrivetrain {
         xController.setGains(DRIVE_KP, DRIVE_KI, DRIVE_KD, DRIVE_MAX_OUT);
         yController.setGains(DRIVE_KP, DRIVE_KI, DRIVE_KD, DRIVE_MAX_OUT);
         headingController.setGains(HEADING_KP, HEADING_KI, HEADING_KD, DRIVE_MAX_OUT);
+        double K_decel = DRIVE_KF;
 
         if(drivetrainMode == DrivetrainMode.MANUAL){
             //drive train
@@ -310,14 +265,35 @@ public class TuningDrivetrain {
             double xPower = xController.calculate(instantX, localizer.getX());
             double yPower = yController.calculate(instantY, localizer.getY());
 
+            double remainingXDistance = Math.abs(targetPose.getX(DistanceUnit.INCH) - localizer.getX());
+            double remainingYDistance = Math.abs(targetPose.getY(DistanceUnit.INCH) - localizer.getY());
+
+            // Prevent division by zero or excessive deceleration force
+            double minDistance = 0.1;
+            remainingXDistance = Math.max(remainingXDistance, minDistance);
+            remainingYDistance = Math.max(remainingYDistance, minDistance);
+
+            // Compute feedforward deceleration
+            double feedforwardXDecel = K_decel * (xPower * xPower) / (2 * remainingXDistance);
+            double feedforwardYDecel = K_decel * (yPower * yPower) / (2 * remainingYDistance);
+
+            // Apply deceleration in the same direction as pidOutput
+            double adjustedXPower = xPower - Math.signum(xPower) * feedforwardXDecel;
+            double adjustedYPower = yPower - Math.signum(yPower) * feedforwardYDecel;
+
+            // Clip power to avoid excessive reduction
+            adjustedXPower = Range.clip(adjustedXPower, -DRIVE_MAX_OUT, DRIVE_MAX_OUT);
+            adjustedYPower = Range.clip(adjustedYPower, -DRIVE_MAX_OUT, DRIVE_MAX_OUT);
+
+            //setMotorPower(adjustedPower);
             double wrappedAngleError = angleWrap(targetPose.getHeading(AngleUnit.DEGREES) - localizer.getHeading());
             double tPower = headingController.calculate(wrappedAngleError);
 
             double radianHeading = Math.toRadians(localizer.getHeading());
 
             //rotate the motor powers based on robot heading
-            double xPower_rotated = xPower * Math.cos(-radianHeading) - yPower * Math.sin(-radianHeading);
-            double yPower_rotated = xPower * Math.sin(-radianHeading) + yPower * Math.cos(-radianHeading);
+            double xPower_rotated = adjustedXPower * Math.cos(-radianHeading) - adjustedYPower * Math.sin(-radianHeading);
+            double yPower_rotated = adjustedXPower * Math.sin(-radianHeading) + adjustedYPower * Math.cos(-radianHeading);
 
             // x, y, theta input mixing to deliver motor powers
             leftFrontDrive.setPower(xPower_rotated - yPower_rotated - tPower);
