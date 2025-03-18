@@ -63,7 +63,7 @@ public class TeleOp extends LinearOpMode {
             if (ascending) {
                 if (timer.seconds() < 1) {
                     //align angle of stationary hooks
-                    scoring.pivotToTargetPosition(0.8, -1622);
+                    scoring.pivotToTargetPosition(0.8, -1822);
                 } else if (timer.seconds() < 2) {
                     //align height of stationary hooks
                     lift.liftToPositionPIDClass(150);

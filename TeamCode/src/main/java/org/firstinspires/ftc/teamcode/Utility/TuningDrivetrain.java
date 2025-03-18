@@ -336,8 +336,24 @@ public class TuningDrivetrain {
                 rightBackPower = rightBackPower * ratio;
             }
 
-            if (Math.abs(leftFrontPower) > 1){
-                double ratio = 1 / leftFrontPower;
+            if (Math.abs(rightFrontPower) > 1){
+                double ratio = 1 / rightFrontPower;
+                rightFrontPower = rightFrontPower * ratio;
+                leftFrontPower = leftFrontPower * ratio;
+                leftBackPower = leftBackPower * ratio;
+                rightBackPower = rightBackPower * ratio;
+            }
+
+            if (Math.abs(leftBackPower) > 1){
+                double ratio = 1 / leftBackPower;
+                rightFrontPower = rightFrontPower * ratio;
+                leftFrontPower = leftFrontPower * ratio;
+                leftBackPower = leftBackPower * ratio;
+                rightBackPower = rightBackPower * ratio;
+            }
+
+            if (Math.abs(rightBackPower) > 1){
+                double ratio = 1 / rightBackPower;
                 rightFrontPower = rightFrontPower * ratio;
                 leftFrontPower = leftFrontPower * ratio;
                 leftBackPower = leftBackPower * ratio;
