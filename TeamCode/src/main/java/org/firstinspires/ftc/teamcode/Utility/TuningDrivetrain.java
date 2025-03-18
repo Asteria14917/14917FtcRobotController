@@ -46,7 +46,7 @@ public class TuningDrivetrain {
     public static double STRAFE_MULTIPLIER = 2;
 
     //feedforward constant for deceleration
-    public static double DRIVE_KF = 0.0;
+    public static double DRIVE_KF = 0.05;
 
     public static double DRIVE_MAX_ACC = 52;
     public static double DRIVE_MAX_VEL = 52;
@@ -255,24 +255,36 @@ public class TuningDrivetrain {
             myOpMode.telemetry.addData("targetReached", targetReached);
             myOpMode.telemetry.addData("xPower", xPower);
             myOpMode.telemetry.addData("xPowerRotated", xPower_rotated);
-        }else if(drivetrainMode == DrivetrainMode.PROFILE){
+        }else if(drivetrainMode == DrivetrainMode.PROFILE) {
             //double thetaTarget = Math.toRadians(degreeTarget);
             //Use PIDs to calculate motor powers based on error to targets
-            double[]instantTarget = motionProfile.getTargetPosition();
+            double[] instantTarget = motionProfile.getTargetPosition();
             instantX = instantTarget[0];
             instantY = instantTarget[1];
 
             double xPower = xController.calculate(instantX, localizer.getX());
             double yPower = yController.calculate(instantY, localizer.getY());
 
-            double remainingXDistance = Math.abs(targetPose.getX(DistanceUnit.INCH) - localizer.getX());
+            double remainingXDistance = targetPose.getX(DistanceUnit.INCH) - localizer.getX();
             double remainingYDistance = Math.abs(targetPose.getY(DistanceUnit.INCH) - localizer.getY());
+
+            boolean xSign;
+            if (remainingXDistance > 0){
+                xSign = true;
+            } else {
+                xSign = false;
+            }
+
+
+            remainingXDistance = Math.abs(targetPose.getX(DistanceUnit.INCH) - localizer.getX());
+
 
             // Prevent division by zero or excessive deceleration force
             double minDistance = 0.1;
             remainingXDistance = Math.max(remainingXDistance, minDistance);
             remainingYDistance = Math.max(remainingYDistance, minDistance);
 
+            //NOTE: feedforward should probably not be calculated based on xPower, because xPower is not related to velocity on the profile
             // Compute feedforward deceleration
             double feedforwardXDecel = K_decel * (xPower * xPower) / (2 * remainingXDistance);
             double feedforwardYDecel = K_decel * (yPower * yPower) / (2 * remainingYDistance);
@@ -285,6 +297,20 @@ public class TuningDrivetrain {
             adjustedXPower = Range.clip(adjustedXPower, -DRIVE_MAX_OUT, DRIVE_MAX_OUT);
             adjustedYPower = Range.clip(adjustedYPower, -DRIVE_MAX_OUT, DRIVE_MAX_OUT);
 
+            // Determine expected motion direction based on position error
+            double xError = instantX - localizer.getX();
+            double yError = instantY - localizer.getY();
+
+// Clamp power to prevent oscillations during deceleration
+            if(Math.abs(xError) >=1 || Math.abs(yError)>=1) {
+                if (Math.signum(xError) != 0 && Math.signum(xPower) != Math.signum(xError)) {
+                    adjustedXPower = 0; // Prevent unintended reversal
+                }
+                if (Math.signum(yError) != 0 && Math.signum(yPower) != Math.signum(yError)) {
+                    adjustedYPower = 0; // Prevent unintended reversal
+                }
+            }
+
             //setMotorPower(adjustedPower);
             double wrappedAngleError = angleWrap(targetPose.getHeading(AngleUnit.DEGREES) - localizer.getHeading());
             double tPower = headingController.calculate(wrappedAngleError);
@@ -296,10 +322,36 @@ public class TuningDrivetrain {
             double yPower_rotated = adjustedXPower * Math.sin(-radianHeading) + adjustedYPower * Math.cos(-radianHeading);
 
             // x, y, theta input mixing to deliver motor powers
-            leftFrontDrive.setPower(xPower_rotated - yPower_rotated - tPower);
-            leftBackDrive.setPower(xPower_rotated + yPower_rotated - tPower);
-            rightFrontDrive.setPower(xPower_rotated + yPower_rotated + tPower);
-            rightBackDrive.setPower(xPower_rotated - yPower_rotated + tPower);
+
+            double leftFrontPower = xPower_rotated - yPower_rotated - tPower;
+            double rightFrontPower = xPower_rotated + yPower_rotated - tPower;
+            double leftBackPower = xPower_rotated + yPower_rotated + tPower;
+            double rightBackPower = xPower_rotated - yPower_rotated + tPower;
+
+            if (Math.abs(leftFrontPower) > 1){
+                double ratio = 1 / leftFrontPower;
+                rightFrontPower = rightFrontPower * ratio;
+                leftFrontPower = leftFrontPower * ratio;
+                leftBackPower = leftBackPower * ratio;
+                rightBackPower = rightBackPower * ratio;
+            }
+
+            if (Math.abs(leftFrontPower) > 1){
+                double ratio = 1 / leftFrontPower;
+                rightFrontPower = rightFrontPower * ratio;
+                leftFrontPower = leftFrontPower * ratio;
+                leftBackPower = leftBackPower * ratio;
+                rightBackPower = rightBackPower * ratio;
+            }
+
+                //Math.abs(rightFrontPower) > 1 || Math.abs(leftBackPower) > 1 || Math.abs(rightBackPower ) > 1) {
+           // }
+
+
+            leftFrontDrive.setPower(leftFrontPower);
+            leftBackDrive.setPower(leftBackPower);
+            rightFrontDrive.setPower(rightFrontPower);
+            rightBackDrive.setPower(rightBackPower);
 
             //check if drivetrain is still working towards target
             targetReached = motionProfile.profileComplete() && headingController.targetReached;
@@ -318,9 +370,10 @@ public class TuningDrivetrain {
             myOpMode.telemetry.addData("ProfileTotalTime", motionProfile.totalTime);
             myOpMode.telemetry.addData("ProfileTotalDistance", motionProfile.totalDistance);
             myOpMode.telemetry.addData("ProfileComplete", motionProfile.profileComplete());
-            myOpMode.telemetry.addData("ProfilePhase", motionProfile.phase);
+            myOpMode.telemetry.addData("ProfilePhase", motionProfile.                           phase);
             myOpMode.telemetry.addData("HReached", headingController.targetReached);
             myOpMode.telemetry.addData("targetReached", targetReached);
+            myOpMode.telemetry.addData("feedfowardX", feedforwardXDecel);
         }
 
         FtcDashboard dashboard = FtcDashboard.getInstance();
@@ -330,6 +383,7 @@ public class TuningDrivetrain {
         dashboardTelemetry.addData("instantY", instantY);
         dashboardTelemetry.addData("currentX", localizer.getX());
         dashboardTelemetry.addData("currentY", localizer.getY());
+        dashboardTelemetry.addData("KF", K_decel);
         dashboardTelemetry.update();
 
     }
