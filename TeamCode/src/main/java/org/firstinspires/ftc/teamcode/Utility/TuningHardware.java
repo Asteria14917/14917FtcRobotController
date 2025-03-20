@@ -14,7 +14,7 @@ public class TuningHardware{
 
     ElapsedTime runtime = new ElapsedTime();
 
-    public TuningDrivetrain drivetrain;
+    public ProfileDrivetrain drivetrain;
 
     // Define a constructor that allows the OpMode to pass a reference to itself.
     public TuningHardware(LinearOpMode opmode) {
@@ -22,7 +22,7 @@ public class TuningHardware{
     }
 
     public void init() {
-        drivetrain = new TuningDrivetrain(myOpMode);
+        drivetrain = new ProfileDrivetrain(myOpMode);
 
         drivetrain.init();
 
@@ -30,35 +30,11 @@ public class TuningHardware{
         myOpMode.telemetry.update();
     }
 
-    public void teleOp() {
-        drivetrain.teleOp();
-    }
 
     public void update(){
         drivetrain.update();
     }
-/*
-        public void deliver() {
-            scoring.pivot.setPosition(scoring.CLAW_HOVER);
-            scoring.extension.setPosition(scoring.EXTENSION_OUT - 0.2);
-            myOpMode.sleep(500);
-            scoring.claw.setPosition(scoring.CLAW_OPEN);
-            myOpMode.sleep(250);
-            scoring.extension.setPosition(scoring.EXTENSION_IN);
-            myOpMode.sleep(500);
-        }
 
-        public void retrieve() {
-            scoring.pivot.setPosition(scoring.CLAW_DOWN);
-            myOpMode.sleep(250);
-            scoring.extension.setPosition(scoring.EXTENSION_OUT - 0.24);
-            myOpMode.sleep(500);
-            scoring.claw.setPosition(scoring.CLAW_CLOSED);
-            myOpMode.sleep(250);
-            scoring.extension.setPosition(scoring.EXTENSION_IN);
-            myOpMode.sleep(400); //new one
-        }
-*/
 }
 
 
