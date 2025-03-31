@@ -1,7 +1,7 @@
 package org.firstinspires.ftc.teamcode.Utility;
 
 public class LowPassFilter {
-    private double alpha;  // Smoothing factor (0 < alpha ≤ 1)
+    public double alpha;  // Smoothing factor (0 < alpha ≤ 1)
     private double filteredValue = 0;
     private boolean initialized = false;
 
