@@ -42,7 +42,7 @@ public class ProfileDrivetrain {
     LowPassFilter velocityFilterX = new LowPassFilter(0.3);
     LowPassFilter velocityFilterY = new LowPassFilter(0.3);
 
-    MotionProfileThreedux motionProfile;
+    public MotionProfileThreedux motionProfile;
 
     Pose2D targetPose;
     public boolean targetReached = false;
@@ -139,6 +139,8 @@ public class ProfileDrivetrain {
 
         resetEncoders();
         runWithoutEncoders();
+
+        drivetrainMode = DrivetrainMode.MANUAL;
 
         myOpMode.telemetry.addData(">", "Drivetrain Initialized");
     }
@@ -322,8 +324,6 @@ public class ProfileDrivetrain {
             //motor power should be between -1 and 1
             double motorCmdX = xVelController.calculate(targetVx, filteredVelX) + feedforward_vel * desiredVx + feedforward_accel * desiredAx;
             double motorCmdY = yVelController.calculate(targetVy, filteredVelY) + feedforward_vel * desiredVy + feedforward_accel * desiredAy;
-
-
 
             //secondary low pass filter applied to the motor command
             double alpha = LOW_PASS_ALPHA;  // Smoothing factor (adjust between 0.5 - 0.9) lower value = more smoothing
