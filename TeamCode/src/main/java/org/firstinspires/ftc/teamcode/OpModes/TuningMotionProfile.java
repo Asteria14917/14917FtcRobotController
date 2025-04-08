@@ -76,7 +76,7 @@ public class TuningMotionProfile extends LinearOpMode {
                     break;
                 case IDLE_ONE:
                     robot.drivetrain.profiledDriveToTarget(targetX, targetY, targetHeading);
-                    if(timer.seconds() > 2){
+                    if(timer.seconds() > 0.1){
                         setState(State.DRIVE_TO_START);
                     }
                     break;
@@ -88,7 +88,7 @@ public class TuningMotionProfile extends LinearOpMode {
                     break;
                 case IDLE_TWO:
                     robot.drivetrain.profiledDriveToTarget(0, 0, 0);
-                    if(timer.seconds() > 2){
+                    if(timer.seconds() > 0.1){
                         setState(State.DRIVE_TO_TARGET);
                     }
                     break;

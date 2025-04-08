@@ -57,7 +57,7 @@ public class ProfileDrivetrain {
     public static double DRIVE_MAX_OUT = 0.7;
 
     // Gains for the inner velocity loop.
-    public static double PROFILE_KP = 3;
+    public static double PROFILE_KP = 8;
     public static double PROFILE_KI = 0.0;
     public static double PROFILE_KD = 0.0;
 
@@ -67,12 +67,12 @@ public class ProfileDrivetrain {
     public static double VELOCITY_KD = 0.0;
 
     // Feedforward gain for acceleration.
-    public static double FEEDFORWARD_ACC = 0;
+    public static double FEEDFORWARD_ACC = 0.001;
     public static double FEEDFORWARD_VEL = 0.01;
 
     // Maximum velocity and acceleration for the motion profile.
-    public static double DRIVE_MAX_ACC = 40;
-    public static double DRIVE_MAX_VEL = 40;
+    public static double DRIVE_MAX_ACC = 51;
+    public static double DRIVE_MAX_VEL = 51;
 
     // Other constants.
     public static double STRAFE_MULTIPLIER = 2;
@@ -80,8 +80,8 @@ public class ProfileDrivetrain {
     //used to adjust smoothing factor of low pass filter
     public static double FILTER_CONSTANT = 0.3;
 
-    public static double MAX_ACCEL_FILTER = 0.1;
-    public static double LOW_PASS_ALPHA = 0.5;
+    public static double MAX_ACCEL_FILTER = 0.4;
+    public static double LOW_PASS_ALPHA = 0;
 
     double prevMotorCmdX = 0;
     double prevMotorCmdY = 0;
