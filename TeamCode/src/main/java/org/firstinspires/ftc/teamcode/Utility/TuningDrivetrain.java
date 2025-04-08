@@ -31,7 +31,7 @@ public class TuningDrivetrain {
     PIDController yController;
     PIDController headingController;
 
-    MotionProfileRedux motionProfile;
+    public MotionProfileRedux motionProfile;
 
     Pose2D targetPose;
     public boolean targetReached = false;

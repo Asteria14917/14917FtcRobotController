@@ -42,7 +42,7 @@ public class ProfileDrivetrain {
     LowPassFilter velocityFilterX = new LowPassFilter(0.3);
     LowPassFilter velocityFilterY = new LowPassFilter(0.3);
 
-    MotionProfileThreedux motionProfile;
+    public MotionProfileThreedux motionProfile;
 
     Pose2D targetPose;
     public boolean targetReached = false;
@@ -85,6 +85,9 @@ public class ProfileDrivetrain {
 
     double prevMotorCmdX = 0;
     double prevMotorCmdY = 0;
+
+    double prevMotorCmdx2 = 0;
+    double prevMotorCmdy2 = 0;
 
     public enum DrivetrainMode {
         MANUAL,
@@ -136,6 +139,8 @@ public class ProfileDrivetrain {
 
         resetEncoders();
         runWithoutEncoders();
+
+        drivetrainMode = DrivetrainMode.MANUAL;
 
         myOpMode.telemetry.addData(">", "Drivetrain Initialized");
     }
@@ -306,8 +311,8 @@ public class ProfileDrivetrain {
             double rawVelY = localizer.odo.getVelocity().getY(DistanceUnit.INCH);
 
             //filters the raw data through the low pass filter
-            velocityFilterX = new LowPassFilter(FILTER_CONSTANT);
-            velocityFilterY = new LowPassFilter(FILTER_CONSTANT);
+            velocityFilterX.alpha = FILTER_CONSTANT;
+            velocityFilterY.alpha = FILTER_CONSTANT;
 
             double filteredVelX = velocityFilterX.filter(rawVelX);
             double filteredVelY = velocityFilterY.filter(rawVelY);
@@ -320,18 +325,6 @@ public class ProfileDrivetrain {
             double motorCmdX = xVelController.calculate(targetVx, filteredVelX) + feedforward_vel * desiredVx + feedforward_accel * desiredAx;
             double motorCmdY = yVelController.calculate(targetVy, filteredVelY) + feedforward_vel * desiredVy + feedforward_accel * desiredAy;
 
-            //Limits the acceleration of the motor itself, so it can’t change its value that much
-            double maxAcceleration = MAX_ACCEL_FILTER; // Tune this based on robot behavior
-            double deltaCmdX = motorCmdX - prevMotorCmdX;
-            deltaCmdX = Range.clip(deltaCmdX, -maxAcceleration, maxAcceleration);
-            motorCmdX = prevMotorCmdX + deltaCmdX;
-            prevMotorCmdX = motorCmdX;
-
-            double deltaCmdY = motorCmdY - prevMotorCmdY;
-            deltaCmdY = Range.clip(deltaCmdY, -maxAcceleration, maxAcceleration);
-            motorCmdY = prevMotorCmdY + deltaCmdY;
-            prevMotorCmdY = motorCmdY;
-
             //secondary low pass filter applied to the motor command
             double alpha = LOW_PASS_ALPHA;  // Smoothing factor (adjust between 0.5 - 0.9) lower value = more smoothing
             motorCmdX = alpha * motorCmdX + (1 - alpha) * prevMotorCmdX;
@@ -339,6 +332,18 @@ public class ProfileDrivetrain {
 
             motorCmdY = alpha * motorCmdY + (1 - alpha) * prevMotorCmdY;
             prevMotorCmdY = motorCmdY;
+
+            //Limits the acceleration of the motor itself, so it can’t change its value that much
+            double maxAcceleration = MAX_ACCEL_FILTER; // Tune this based on robot behavior
+            double deltaCmdX = motorCmdX - prevMotorCmdx2;
+            deltaCmdX = Range.clip(deltaCmdX, -maxAcceleration, maxAcceleration);
+            motorCmdX = prevMotorCmdx2 + deltaCmdX;
+            prevMotorCmdx2 = motorCmdX;
+
+            double deltaCmdY = motorCmdY - prevMotorCmdy2;
+            deltaCmdY = Range.clip(deltaCmdY, -maxAcceleration, maxAcceleration);
+            motorCmdY = prevMotorCmdy2 + deltaCmdY;
+            prevMotorCmdy2 = motorCmdY;
 
 
             // --- Heading Control ---
@@ -386,6 +391,8 @@ public class ProfileDrivetrain {
             myOpMode.telemetry.addData("VELOCITY_KP", VELOCITY_KP);
             myOpMode.telemetry.addData("Feedforward Acc", feedforward_accel);
             myOpMode.telemetry.addData("Feedforward Vel", feedforward_accel);
+            myOpMode.telemetry.addData("Filter Constant", FILTER_CONSTANT);
+            myOpMode.telemetry.addData("Low Pass alpha", LOW_PASS_ALPHA);
             myOpMode.telemetry.addData("Target Vx", targetVx);
             myOpMode.telemetry.addData("Target Vy", targetVy);
             myOpMode.telemetry.addData("MotorCmdX", motorCmdX);
