@@ -64,27 +64,27 @@ public class TeleOp extends LinearOpMode {
                 if (timer.seconds() < 1) {
                     //align angle of stationary hooks
                     scoring.pivotToTargetPosition(0.8, -1822);
-                } else if (timer.seconds() < 2) {
-                    //align height of stationary hooks
-                    lift.liftToPositionPIDClass(150);
-                    scoring.pivotToTargetPosition(0.8, -1622);
                 } else if (timer.seconds() < 3) {
+                    //align height of stationary hooks
+                    lift.liftToPositionPIDClass(100);
+                    scoring.pivotToTargetPosition(0.8, -1622);
+                } else if (timer.seconds() < 4) {
                     //attach stationary hooks
                     scoring.pivotToTargetPosition(0.8, -500);
-                } else if(timer.seconds()< 5){
+                } else if(timer.seconds()< 6){
                     //extend lift past high bar
                     lift.liftToPositionPIDClass(3000);
-                } else if (timer.seconds() < 7) {
+                } else if (timer.seconds() < 8) {
                     //pivot down to align lift hooks with high bar
                     scoring.pivotToTargetPosition(0.9, -1013);
-                } else if (timer.seconds()< 8){
+                } else if (timer.seconds()< 9){
                     //retract lift to hook onto high bar
                     lift.liftToPositionPIDClass(2000);
-                }else if (timer.seconds() < 10) {
+                }else if (timer.seconds() < 11) {
                     //retract and pivot
                     lift.liftToPositionPIDClass(0);
                     scoring.pivotToTargetPosition(0.9, 1100);
-                } else if (timer.seconds() < 12) {
+                } else if (timer.seconds() < 13) {
                     //pivot to get wheel over low bar
                     lift.liftToPositionPIDClass(0);
                     scoring.pivotToTargetPosition(0.8, -81);
