@@ -1,14 +1,20 @@
 package org.firstinspires.ftc.teamcode.Subsystems;
 
+import androidx.annotation.NonNull;
+
+import com.acmerobotics.dashboard.telemetry.TelemetryPacket;
+import com.acmerobotics.roadrunner.Action;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.Servo;
+import com.qualcomm.robotcore.util.ElapsedTime;
 
-    public class Scoring {
+public class Scoring {
         /* Declare OpMode members. */
         private LinearOpMode myOpMode = null;   // gain access to methods in the calling OpMode.
 
+        private ElapsedTime timer;
         //servos
         public Servo claw = null;
         public Servo clawRotate = null;
@@ -94,6 +100,30 @@ import com.qualcomm.robotcore.hardware.Servo;
 
             myOpMode.telemetry.addData(">", "Extension Initialized");
         }
+
+        public class Clawsubmersible implements Action {
+            private boolean initialized = false;
+
+            @Override
+            public boolean run(@NonNull TelemetryPacket packet) {
+                if (!initialized) {
+                    timer.reset();
+                    claw.setPosition(Scoring.CLAW_CLOSED);
+                    clawPivot.setPosition(WRIST_SPECIMEN);
+                    clawRotate.setPosition(CLAW_ROTATE_SAMPLE);
+                    initialized = true;
+                }
+
+                packet.put("Servo time elapsed", timer.seconds());
+                return timer.seconds() < 2.0;
+            }
+        }
+
+        public Action Clawsubmersible() {
+            return new Clawsubmersible();
+        }
+
+
 
         public void teleOp() {
             myOpMode.telemetry.addData("pivotPosition", pivot.getCurrentPosition());
@@ -341,6 +371,6 @@ import com.qualcomm.robotcore.hardware.Servo;
 
 
                 // optional pause after each move.
-            }
-        }
 
+        }
+    }
