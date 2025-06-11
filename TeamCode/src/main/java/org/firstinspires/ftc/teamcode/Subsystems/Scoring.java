@@ -79,6 +79,8 @@ import com.qualcomm.robotcore.util.ElapsedTime;
         }
 
         public void init() {
+            timer = new ElapsedTime();
+
             intakeL = myOpMode.hardwareMap.get(CRServo.class, "intakeL");
             intakeR = myOpMode.hardwareMap.get(CRServo.class, "intakeR");
             intakeL.setDirection(CRServo.Direction.FORWARD);
@@ -119,11 +121,9 @@ import com.qualcomm.robotcore.util.ElapsedTime;
             }
         }
 
-        public Action Clawsubmersible() {
+        public Action clawSubmersible() {
             return new Clawsubmersible();
         }
-
-
 
         public class ClawObservationZone implements Action {
             private boolean initialized = false;
