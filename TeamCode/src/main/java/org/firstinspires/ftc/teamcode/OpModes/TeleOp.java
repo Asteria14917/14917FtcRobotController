@@ -87,11 +87,11 @@ public class TeleOp extends LinearOpMode {
                 } else if (timer.seconds() < 13) {
                     //pivot to get wheel over low bar
                     lift.liftToPositionPIDClass(0);
-                    scoring.pivotToTargetPosition(0.8, -81);
+                    scoring.pivotToTargetPosition(1, -200);
                 } else {
                     //align robot on high bar
-                    lift.liftToPositionPIDClass(0);
-                    scoring.pivotToTargetPosition(0.8, 400);
+                    lift.liftToPositionPIDClass(-50);
+                    scoring.pivotToTargetPosition(0.08, 600);
                 }
             }
         }
