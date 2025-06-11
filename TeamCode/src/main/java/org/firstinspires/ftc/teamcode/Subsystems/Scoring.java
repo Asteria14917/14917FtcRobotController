@@ -10,7 +10,7 @@ import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
-public class Scoring {
+    public class Scoring {
         /* Declare OpMode members. */
         private LinearOpMode myOpMode = null;   // gain access to methods in the calling OpMode.
 
@@ -124,6 +124,28 @@ public class Scoring {
         }
 
 
+
+        public class ClawObservationZone implements Action {
+            private boolean initialized = false;
+
+            @Override
+            public boolean run(@NonNull TelemetryPacket packet) {
+                if (!initialized) {
+                    timer.reset();
+                    claw.setPosition(CLAW_OPEN);
+                    clawPivot.setPosition(WRIST_IN);
+                    clawRotate.setPosition(CLAW_ROTATE_SPECIMEN);
+                    initialized = true;
+                }
+
+                packet.put("servo time elapsed", timer.seconds());
+                return timer.seconds() < 2.0;
+            }
+        }
+
+        public Action clawToObservationZone() {
+            return new ClawObservationZone();
+        }
 
         public void teleOp() {
             myOpMode.telemetry.addData("pivotPosition", pivot.getCurrentPosition());
@@ -371,6 +393,6 @@ public class Scoring {
 
 
                 // optional pause after each move.
-
+            }
         }
-    }
+
