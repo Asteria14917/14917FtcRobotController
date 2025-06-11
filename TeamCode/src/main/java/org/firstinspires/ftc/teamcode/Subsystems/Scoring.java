@@ -342,6 +342,7 @@ public class Scoring {
                 clawPivot.setPosition(WRIST_OUT);
             }
         }
+        
         public void pivotToTargetPosition(double speed,
                                  int targetPosition){
 
