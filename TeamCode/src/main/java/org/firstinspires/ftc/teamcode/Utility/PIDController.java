@@ -17,7 +17,7 @@ public class PIDController {
     double integralCap = 0.25;
     public double maxOut = 0.4;
     public double minOut = 0.1;
-    double errorMargin = 1;
+    public double errorMargin = 1;
     double previousFilterEstimate = 0;
     double currentFilterEstimate = 0;
     double a = 0.5;

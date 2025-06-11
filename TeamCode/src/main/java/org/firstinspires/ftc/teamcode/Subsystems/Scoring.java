@@ -147,6 +147,26 @@ import com.qualcomm.robotcore.util.ElapsedTime;
             return new ClawObservationZone();
         }
 
+        public Action pivotAction(int target) {
+            return new Action() {
+                private boolean initialized = false;
+
+                @Override
+                public boolean run(@NonNull TelemetryPacket packet) {
+                    if (!initialized) {
+                        timer.reset();
+                        pivot.setTargetPosition(target);
+                        pivot.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+                        pivot.setPower(Math.abs(PIVOT_SPEED));
+                        initialized = true;
+                    }
+
+                    packet.put("pivot position", pivot.getCurrentPosition());
+                    return pivot.isBusy();
+                }
+            };
+        }
+
         public class PivotObservationZone implements Action {
             private boolean initialized = false;
 
@@ -155,6 +175,11 @@ import com.qualcomm.robotcore.util.ElapsedTime;
                 if (!initialized) {
                     timer.reset();
                     pivot.setTargetPosition(PIVOT_OBSERVATION_ZONE);
+                    // Turn On RUN_TO_POSITION
+                    pivot.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+
+                    // reset the timeout time and start motion
+                    pivot.setPower(Math.abs(PIVOT_SPEED));
                     initialized = true;
                 }
 
@@ -163,7 +188,7 @@ import com.qualcomm.robotcore.util.ElapsedTime;
             }
         }
 
-        public Action PivotObservationZone() {
+        public Action pivotObservationZone() {
             return new PivotObservationZone();
         }
 
@@ -175,6 +200,11 @@ import com.qualcomm.robotcore.util.ElapsedTime;
                 if (!initialized) {
                     timer.reset();
                     pivot.setTargetPosition(PIVOT_ZERO);
+                    // Turn On RUN_TO_POSITION
+                    pivot.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+
+                    // reset the timeout time and start motion
+                    pivot.setPower(Math.abs(PIVOT_SPEED));
                     initialized = true;
                 }
 
@@ -183,7 +213,7 @@ import com.qualcomm.robotcore.util.ElapsedTime;
             }
         }
 
-        public Action PivotSubmersible() {
+        public Action pivotSubmersible() {
             return new PivotSubmersible();
         }
 

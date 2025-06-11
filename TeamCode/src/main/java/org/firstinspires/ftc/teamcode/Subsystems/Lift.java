@@ -2,7 +2,11 @@ package org.firstinspires.ftc.teamcode.Subsystems;
 
 //package org.firstinspires.ftc.teamcode;
 
+import androidx.annotation.NonNull;
+
 import com.acmerobotics.dashboard.config.Config;
+import com.acmerobotics.dashboard.telemetry.TelemetryPacket;
+import com.acmerobotics.roadrunner.Action;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
 
@@ -62,6 +66,8 @@ public class Lift {
         scoring = scoringIN;
         leftLiftPIDController = new PIDController(LIFT_KP,LIFT_KI,LIFT_KD,LIFT_MAX_OUT);
         rightLiftPIDController = new PIDController(LIFT_KP,LIFT_KI,LIFT_KD,LIFT_MAX_OUT);
+        leftLiftPIDController.errorMargin = 10;
+        rightLiftPIDController.errorMargin = 10;
 
         rightLift = myOpMode.hardwareMap.get(DcMotor.class, "rightLift");
         leftLift = myOpMode.hardwareMap.get(DcMotor.class, "leftLift");
@@ -78,6 +84,29 @@ public class Lift {
         leftLift.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
 
         myOpMode.telemetry.addData(">", "Lift Initialized");
+    }
+
+    public Action liftAction(int target) {
+        return new Action() {
+            private boolean initialized = false;
+
+            @Override
+            public boolean run(@NonNull TelemetryPacket packet) {
+                if (!initialized) {
+                    liftToPositionPIDClass(target);
+                    initialized = true;
+                }
+
+                liftToPositionPIDClass(target);
+
+                packet.put("left Lift position", leftLift.getCurrentPosition());
+                packet.put("right Lift position", rightLift.getCurrentPosition());
+                myOpMode.telemetry.addData("left Lift position", leftLift.getCurrentPosition());
+                myOpMode.telemetry.addData("right Lift position", rightLift.getCurrentPosition());
+                myOpMode.telemetry.update();
+                return liftBusy();
+            }
+        };
     }
 
     public void teleOp() {
@@ -246,6 +275,14 @@ public class Lift {
         myOpMode.telemetry.addData("Running to", targetPosition);
         myOpMode.telemetry.addData("Currently at",  " at %7d :%7d",
                 leftLift.getCurrentPosition(), rightLift.getCurrentPosition());
+    }
+
+    public boolean liftBusy(){
+        if(leftLiftPIDController.targetReached && rightLiftPIDController.targetReached){
+            return false;
+        }else{
+            return true;
+        }
     }
 
 
