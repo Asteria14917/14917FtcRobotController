@@ -147,6 +147,49 @@ import com.qualcomm.robotcore.util.ElapsedTime;
             return new ClawObservationZone();
         }
 
+        public class PivotObservationZone implements Action {
+            private boolean initialized = false;
+
+            @Override
+            public boolean run(@NonNull TelemetryPacket packet) {
+                if (!initialized) {
+                    timer.reset();
+                    pivot.setTargetPosition(PIVOT_OBSERVATION_ZONE);
+                    initialized = true;
+                }
+
+                packet.put("pivot position", pivot.getCurrentPosition());
+                return pivot.isBusy();
+            }
+        }
+
+        public Action PivotObservationZone() {
+            return new PivotObservationZone();
+        }
+
+        public class PivotSubmersible implements Action {
+            private boolean initialized = false;
+
+            @Override
+            public boolean run(@NonNull TelemetryPacket packet) {
+                if (!initialized) {
+                    timer.reset();
+                    pivot.setTargetPosition(PIVOT_ZERO);
+                    initialized = true;
+                }
+
+                packet.put("pivot position", pivot.getCurrentPosition());
+                return pivot.isBusy();
+            }
+        }
+
+        public Action PivotSubmersible() {
+            return new PivotSubmersible();
+        }
+
+
+
+
         public void teleOp() {
             myOpMode.telemetry.addData("pivotPosition", pivot.getCurrentPosition());
             myOpMode.telemetry.addData("pivotMode", pivotMode);
