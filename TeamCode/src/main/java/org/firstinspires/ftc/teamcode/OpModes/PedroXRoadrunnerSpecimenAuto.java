@@ -35,26 +35,22 @@ import org.firstinspires.ftc.teamcode.pedroPathing.constants.LConstants;
 public class PedroXRoadrunnerSpecimenAuto extends LinearOpMode {
 
     private Pose2d initialPose = new Pose2d(0, 0, Math.toRadians(0));
-    private Follower follower;
+    Follower follower = new Follower(hardwareMap, FConstants.class, LConstants.class);;
     public ElapsedTime timer = new ElapsedTime();
-    Scoring scoring;
-    Lift lift;
+    Scoring scoring = new Scoring(this);
+    Lift lift = new Lift(this);
     private Timer pathTimer, actionTimer, opmodeTimer;
     int cycle = 0;
-
     PathChain retrieveGroundSamples, retrieveFirstSpecimen, scorePreLoad;
 
     @Override
     public void runOpMode() throws InterruptedException {
-        scoring = new Scoring(this);
-        lift = new Lift(this);
         pathTimer = new Timer();
 
         buildPaths();
 
         //Post is 9 and 57 on Pedro Coordinate System
         Pose startPose = new Pose(0, 0, 0);
-        follower = new Follower(hardwareMap, FConstants.class, LConstants.class);
         follower.setStartingPose(startPose);
 
         scoring.init();
@@ -68,10 +64,18 @@ public class PedroXRoadrunnerSpecimenAuto extends LinearOpMode {
 
         //*******SCORE PRELOAD********
         //Score preload on submersible
-        Actions.runBlocking(scoreOnSubmersible);
+        Actions.runBlocking(new SequentialAction(
+                new ParallelAction(
+                    scoring.clawSubmersible(),
+                    lift.liftAction(Lift.EXT_HIGH_CHAMBER)
+                ),
+                //pedroBezierDriveToPose(new Pose(35, 70-cycle*2, 0), new Pose(16,68, 0)),
+                pedroDriveOnPathChain(scorePreLoad)
+                //add action to open claw
+        ));
         //Retract lift and run through pathchain to retrieve ground samples
-        Actions.runBlocking(retrieveSamples);
-
+       // Actions.runBlocking(retrieveSamples);
+/*
         //Pick up first specimen from observation zone
         Actions.runBlocking(new SequentialAction(
                 scoring.clawToObservationZone(),
@@ -97,7 +101,11 @@ public class PedroXRoadrunnerSpecimenAuto extends LinearOpMode {
                     scoring.clawToObservationZone())
             );
             cycle++;
+
+
         }
+        */
+
     }
 
     ParallelAction retrieveSamples = new ParallelAction(
@@ -107,10 +115,11 @@ public class PedroXRoadrunnerSpecimenAuto extends LinearOpMode {
             );
 
     ParallelAction scoreOnSubmersible = new ParallelAction(
-            pedroBezierDriveToPose(new Pose(35, 70-cycle*2, 0), new Pose(16,68, 0)),
+            //pedroBezierDriveToPose(new Pose(35, 70-cycle*2, 0), new Pose(16,68, 0)),
+            pedroDriveOnPathChain(scorePreLoad),
             new SequentialAction(
             scoring.pivotAction(Scoring.PIVOT_ZERO),
-                            lift.liftAction(Lift.EXT_HIGH_CHAMBER)
+                    lift.liftAction(Lift.EXT_HIGH_CHAMBER)
             ),
             scoring.clawSubmersible());
 
