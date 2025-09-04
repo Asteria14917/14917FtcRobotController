@@ -1,3 +1,4 @@
+/*
 package org.firstinspires.ftc.teamcode.pedroPathing.constants;
 
 import com.pedropathing.localization.*;
@@ -20,6 +21,8 @@ public class LConstants {
         PinpointConstants.strafeEncoderDirection = GoBildaPinpointDriver.EncoderDirection.REVERSED;
     }
 }
+
+ */
 
 
 
