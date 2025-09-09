@@ -1,3 +1,4 @@
+/*
 package org.firstinspires.ftc.teamcode.pedroPathing.constants;
 
 import com.pedropathing.localization.Localizers;
@@ -53,3 +54,5 @@ public class FConstants {
         FollowerConstants.pathEndHeadingConstraint = 0.007;
     }
 }
+
+ */

@@ -1,9 +1,9 @@
+/*
 package org.firstinspires.ftc.teamcode.OpModes;
 
 import com.acmerobotics.dashboard.FtcDashboard;
 import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
-import com.pedropathing.localization.Pose;
-import com.pedropathing.pathgen.BezierLine;
+
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import org.firstinspires.ftc.robotcore.external.Telemetry;
@@ -223,3 +223,5 @@ public class LaCanadaPedroTest extends LinearOpMode {
         }
     }
 }
+
+ */

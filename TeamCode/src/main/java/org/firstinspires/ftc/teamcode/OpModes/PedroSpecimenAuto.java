@@ -12,23 +12,25 @@ import com.acmerobotics.roadrunner.SequentialAction;
 import com.acmerobotics.roadrunner.Vector2d;
 import com.acmerobotics.roadrunner.ftc.Actions;
 import com.pedropathing.follower.Follower;
-import com.pedropathing.localization.Pose;
-import com.pedropathing.pathgen.BezierCurve;
-import com.pedropathing.pathgen.BezierLine;
-import com.pedropathing.pathgen.Path;
-import com.pedropathing.pathgen.PathChain;
-import com.pedropathing.pathgen.Point;
+import com.pedropathing.geometry.BezierCurve;
+import com.pedropathing.geometry.Pose;
+import com.pedropathing.geometry.BezierPoint;
+;
+import com.pedropathing.paths.Path;
+import com.pedropathing.paths.PathChain;
 import com.pedropathing.util.Timer;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
+import com.pedropathing.geometry.BezierLine;
+
+import org.firstinspires.ftc.robotcore.external.Const;
 import org.firstinspires.ftc.teamcode.RR.Drawing;
 import org.firstinspires.ftc.teamcode.RR.MecanumDrive;
 import org.firstinspires.ftc.teamcode.Subsystems.Lift;
 import org.firstinspires.ftc.teamcode.Subsystems.Scoring;
-import org.firstinspires.ftc.teamcode.pedroPathing.constants.FConstants;
-import org.firstinspires.ftc.teamcode.pedroPathing.constants.LConstants;
+import org.firstinspires.ftc.teamcode.pedroPathing.constants.Constants;
 
 @Autonomous(name="PedroSpecimenAuto", group="Linear OpMode")
 @Config
@@ -46,7 +48,7 @@ public class PedroSpecimenAuto extends LinearOpMode {
         pathTimer = new Timer();
 
         Pose startPose = new Pose(9, 57, 0);
-        follower = new Follower(hardwareMap, FConstants.class, LConstants.class);
+        follower = Constants.createFollower(hardwareMap);
         follower.setStartingPose(startPose);
 
         scoring.init();
@@ -55,9 +57,9 @@ public class PedroSpecimenAuto extends LinearOpMode {
         PathChain scorePreLoad = follower.pathBuilder()
                 .addPath(
                         new BezierCurve(
-                                new Point(9.000, 57.000, Point.CARTESIAN),
-                                new Point(23.063, 73.260, Point.CARTESIAN),
-                                new Point(38.956, 74.229, Point.CARTESIAN)
+                                new Pose(9.000, 57.000),
+                                new Pose(23.063, 73.260),
+                                new Pose(38.956, 74.22)
                         )
                 )
                 .setConstantHeadingInterpolation(Math.toRadians(0))
@@ -67,29 +69,29 @@ public class PedroSpecimenAuto extends LinearOpMode {
                 .addPath(
                         // Line 2
                         new BezierCurve(
-                                new Point(38.956, 74.229, Point.CARTESIAN),
-                                new Point(0.000, 4.070, Point.CARTESIAN),
-                                new Point(105.626, 55.817, Point.CARTESIAN),
-                                new Point(65.895, 20.738, Point.CARTESIAN),
-                                new Point(22.481, 27.133, Point.CARTESIAN)
+                                new Pose(38.956, 74.229),
+                                new Pose(0.000, 4.070),
+                                new Pose(105.626, 55.817),
+                                new Pose(65.895, 20.738),
+                                new Pose(22.481, 27.133)
                         )
                 )
                 .setConstantHeadingInterpolation(Math.toRadians(0))
                 .addPath(
                         // Line 3
                         new BezierCurve(
-                                new Point(22.481, 27.133, Point.CARTESIAN),
-                                new Point(109.890, 19.187, Point.CARTESIAN),
-                                new Point(22.481, 16.280, Point.CARTESIAN)
+                                new Pose(22.481, 27.133),
+                                new Pose(109.890, 19.187),
+                                new Pose(22.481, 16.280)
                         )
                 )
                 .setConstantHeadingInterpolation(Math.toRadians(0))
                 .addPath(
                         // Line 4
                         new BezierCurve(
-                                new Point(22.481, 16.280, Point.CARTESIAN),
-                                new Point(111.634, 10.078, Point.CARTESIAN),
-                                new Point(22.481, 10.721, Point.CARTESIAN)
+                                new Pose(22.481, 16.280),
+                                new Pose(111.634, 10.078),
+                                new Pose(22.481, 10.721)
                         )
                 )
                 .setConstantHeadingInterpolation(Math.toRadians(0))
@@ -98,9 +100,9 @@ public class PedroSpecimenAuto extends LinearOpMode {
         PathChain pickUpSpecimen = follower.pathBuilder()
                 .addPath(   // Line 5
                         new BezierCurve(
-                                new Point(23.063, 10.272, Point.CARTESIAN),
-                                new Point(23.451, 23.838, Point.CARTESIAN),
-                                new Point(11.435, 23.838, Point.CARTESIAN)
+                                new Pose(23.063, 10.272),
+                                new Pose(23.451, 23.838),
+                                new Pose(11.435, 23.838)
                         )
                 )
                 .setConstantHeadingInterpolation(Math.toRadians(0))
@@ -238,7 +240,7 @@ public class PedroSpecimenAuto extends LinearOpMode {
                     initialized = true;
                     timer.reset();
                     Pose initialPose = follower.getPose();
-                    newPath = new Path(new BezierLine(new Point(initialPose), new Point(targetPose)));
+                    newPath = new Path(new BezierLine(initialPose, targetPose));
                     newPath.setLinearHeadingInterpolation(initialPose.getHeading(),targetPose.getHeading());
                     follower.followPath(newPath);
                 }

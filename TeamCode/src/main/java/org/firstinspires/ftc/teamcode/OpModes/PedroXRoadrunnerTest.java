@@ -12,11 +12,8 @@ import com.acmerobotics.roadrunner.SequentialAction;
 import com.acmerobotics.roadrunner.Vector2d;
 import com.acmerobotics.roadrunner.ftc.Actions;
 import com.pedropathing.follower.Follower;
-import com.pedropathing.localization.Pose;
-import com.pedropathing.pathgen.BezierCurve;
-import com.pedropathing.pathgen.BezierLine;
-import com.pedropathing.pathgen.Path;
-import com.pedropathing.pathgen.Point;
+
+import com.pedropathing.geometry.Pose;
 import com.pedropathing.util.Timer;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
@@ -25,8 +22,15 @@ import org.firstinspires.ftc.teamcode.RR.Drawing;
 import org.firstinspires.ftc.teamcode.RR.MecanumDrive;
 import org.firstinspires.ftc.teamcode.Subsystems.Lift;
 import org.firstinspires.ftc.teamcode.Subsystems.Scoring;
-import org.firstinspires.ftc.teamcode.pedroPathing.constants.FConstants;
-import org.firstinspires.ftc.teamcode.pedroPathing.constants.LConstants;
+import org.firstinspires.ftc.teamcode.pedroPathing.constants.Constants;
+
+;
+import com.pedropathing.paths.Path;
+
+
+import com.pedropathing.geometry.BezierLine;
+
+
 
 @Autonomous(name="PedroXRoadRunnerTest", group="Linear OpMode")
 @Config
@@ -44,7 +48,7 @@ public class PedroXRoadrunnerTest extends LinearOpMode {
         pathTimer = new Timer();
 
         Pose startPose = new Pose(0, 0, 0);
-        follower = new Follower(hardwareMap, FConstants.class, LConstants.class);
+        follower = Constants.createFollower(hardwareMap);
         follower.setStartingPose(startPose);
 
         scoring.init();
@@ -121,7 +125,7 @@ public class PedroXRoadrunnerTest extends LinearOpMode {
                     initialized = true;
                     timer.reset();
                     Pose initialPose = follower.getPose();
-                    newPath = new Path(new BezierLine(new Point(initialPose), new Point(targetPose)));
+                    newPath = new Path(new BezierLine(initialPose, targetPose));
                     newPath.setLinearHeadingInterpolation(initialPose.getHeading(),targetPose.getHeading());
                     follower.followPath(newPath);
                 }
